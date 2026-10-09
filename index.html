@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<title>Рулетка номеров карт</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;700&family=Share+Tech+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one column on a green casino-felt table. A stage with one big card whose 16 digits change one after another, rarity and price on the right, then the player's cards, the 15-step rarity ladder and the bank price list. */
+:root{
+  --felt:#0b251f;
+  --felt-2:#154036;
+  --ink:#f3ecda;
+  --muted:#9db6ac;
+  --line:rgba(243,236,218,.16);
+  --panel:rgba(0,0,0,.26);
+  --t0:#8fa4ae;
+  --t1:#52c98a;
+  --t2:#4c9bff;
+  --t3:#a374ff;
+  --t4:#ff5d73;
+  --t5:#ffc83d;
+  --f-display:'Unbounded','Arial Black',system-ui,sans-serif;
+  --f-body:'Golos Text',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --f-num:'Share Tech Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  -webkit-text-size-adjust:100%;text-size-adjust:100%;
+  background-color:var(--felt);
+  background-image:radial-gradient(120% 60% at 50% -8%,var(--felt-2),transparent 70%);
+  background-repeat:no-repeat;
+  color:var(--ink);
+  font:400 15px/1.5 var(--f-body);
+  padding-inline:16px;
+  padding-block:24px 100px;
+}
+:focus-visible{outline:2px solid var(--t5);outline-offset:3px}
+.app{display:flex;flex-direction:column;gap:32px;max-width:1040px;margin-inline:auto}
+.app>*{min-width:0}
+h1{font:700 clamp(24px,6vw,40px)/1.08 var(--f-display);margin:0 0 12px;text-wrap:balance;letter-spacing:-.01em}
+h2{font:500 12px var(--f-display);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 14px}
+p{margin:0}
+.lead{color:var(--muted);max-width:62ch;text-wrap:pretty}
+.stats{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:14px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:700}
+
+/* ---------- cards ---------- */
+.card{
+  width:var(--w,230px);max-width:100%;aspect-ratio:1.586;flex:none;
+  container-type:inline-size;position:relative;
+  border-radius:5.5%/8.7%;
+  background:var(--bg);color:var(--hi);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 6px 18px rgba(0,0,0,.38);
+}
+.card::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(120deg,rgba(255,255,255,.16),transparent 42%)}
+.cin{position:absolute;inset:0;padding:5.4cqw 6cqw;display:flex;flex-direction:column;justify-content:space-between}
+.bn{display:block;font:700 5cqw/1.2 var(--f-body);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row2{display:flex;justify-content:space-between;align-items:center;gap:3cqw}
+.tl{font:700 3.6cqw/1 var(--f-body);letter-spacing:.12em;text-transform:uppercase;white-space:nowrap}
+.chip{
+  width:15cqw;height:11.5cqw;border-radius:2cqw;flex:none;
+  box-shadow:inset 0 0 0 .4cqw rgba(60,40,0,.45);
+  background-image:
+    linear-gradient(90deg,transparent 31%,rgba(60,40,0,.5) 32%,transparent 35%,transparent 65%,rgba(60,40,0,.5) 66%,transparent 69%),
+    linear-gradient(0deg,transparent 46%,rgba(60,40,0,.5) 47%,transparent 51%),
+    linear-gradient(135deg,#f3df94,#b58a2c);
+}
+.num{font:400 7.1cqw/1 var(--f-num);letter-spacing:.06em;white-space:nowrap;color:var(--dim);text-shadow:0 -.08em 0 rgba(0,0,0,.45),0 .07em 0 rgba(255,255,255,.12)}
+.num .g{display:inline-block;margin-right:.45em}
+.num .g:last-child{margin-right:0}
+.num i{font-style:normal}
+.num i.h{color:var(--hi);text-shadow:0 -.08em 0 rgba(0,0,0,.4),0 .07em 0 rgba(255,255,255,.2)}
+.bot{display:flex;justify-content:space-between;align-items:baseline;gap:3cqw;font:500 4.6cqw/1.2 var(--f-body)}
+.bot b{font:400 6.6cqw var(--f-num)}
+.pr{display:inline-flex;align-items:center;gap:1.4cqw;font:400 5.6cqw/1.2 var(--f-num);white-space:nowrap}
+.coin{display:inline-block;width:4.4cqw;height:4.4cqw;border-radius:50%;border:.7cqw solid currentColor;background:radial-gradient(circle,currentColor 0 24%,transparent 26%)}
+
+.t0{--bg:linear-gradient(140deg,#2d3e46,#18232a);--hi:#d6e4ea;--dim:rgba(214,228,234,.4)}
+.t1{--bg:linear-gradient(140deg,#1f6b4d,#0c2d21);--hi:#d2f6e4;--dim:rgba(210,246,228,.42)}
+.t2{--bg:linear-gradient(140deg,#23559a,#0f2748);--hi:#d3e7ff;--dim:rgba(211,231,255,.42)}
+.t3{--bg:linear-gradient(140deg,#5a3399,#22123f);--hi:#e8dcff;--dim:rgba(232,220,255,.42)}
+.t4{--bg:linear-gradient(140deg,#a32646,#36101b);--hi:#ffd5db;--dim:rgba(255,213,219,.42)}
+.t5{--bg:linear-gradient(90deg,#8a6310 0%,#e9bb3c 22%,#fff1a6 38%,#e9bb3c 52%,#9a7014 70%,#f5d160 88%,#8a6310 100%);--hi:#2a1b00;--dim:rgba(42,27,0,.45)}
+.tspin{--bg:linear-gradient(140deg,#2b3c44,#141d22);--hi:#f0f6f8;--dim:rgba(240,246,248,.62)}
+.card.t5{background-size:200% 100%;background-repeat:repeat-x}
+.t5 .num,.t5 .num i.h{text-shadow:0 .07em 0 rgba(255,255,255,.4)}
+@media (prefers-reduced-motion:no-preference){
+  .card.t5{animation:foil 5s linear infinite}
+  @keyframes foil{from{background-position:0 0}to{background-position:200% 0}}
+  .card.land{animation:land .6s cubic-bezier(.2,1.4,.4,1)}
+  .card.land.t5{animation:land .6s cubic-bezier(.2,1.4,.4,1),foil 5s linear infinite}
+  @keyframes land{0%{transform:scale(1.05)}100%{transform:scale(1)}}
+}
+.card.land.t3{box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 0 40px rgba(163,116,255,.45),0 6px 18px rgba(0,0,0,.38)}
+.card.land.t4{box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 0 46px rgba(255,93,115,.5),0 6px 18px rgba(0,0,0,.38)}
+.card.land.t5{box-shadow:inset 0 0 0 1px rgba(255,255,255,.14),0 0 64px rgba(255,200,61,.55),0 6px 18px rgba(0,0,0,.38)}
+
+/* ---------- digits on the live card ---------- */
+.live .num{line-height:1.1}
+.cell{display:inline-block;width:1ch;margin-right:.06em;letter-spacing:0;text-align:center;color:var(--dim);transition:color .35s}
+.cell.stopped,.cell.h{color:var(--hi)}
+
+/* ---------- stage ---------- */
+.stage{display:grid;grid-template-columns:minmax(0,460px) minmax(0,1fr);gap:22px 32px;align-items:center;padding:22px;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+@media (max-width:700px){.stage{grid-template-columns:minmax(0,1fr);padding:16px}}
+.live-wrap .card{--w:100%}
+.rinfo{display:flex;flex-direction:column;justify-content:center;gap:10px;min-height:190px}
+.rname{font:700 clamp(24px,6vw,34px)/1.1 var(--f-display)}
+.rinfo b{font-weight:700}
+.price{font:700 clamp(20px,5vw,26px)/1.15 var(--f-display);font-variant-numeric:tabular-nums}
+.price small{font:500 13px var(--f-body);color:var(--muted)}
+.muted{color:var(--muted)}
+.flag{display:inline-block;align-self:flex-start;font:500 12px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:#0b251f;background:var(--ink);padding:5px 10px;border-radius:6px}
+.sell{align-self:flex-start;font:700 14px var(--f-display);color:#0b251f;background:var(--ink);border:0;border-radius:8px;padding:12px 18px;cursor:pointer}
+.sell:disabled{opacity:.5;cursor:default}
+.meter{display:inline-grid;grid-template-columns:repeat(16,9px);gap:2px;align-self:flex-start}
+.meter i{display:block;height:12px;border-radius:2px;background:rgba(243,236,218,.12)}
+.meter i.on{background:var(--accent)}
+
+.controls{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:center;justify-content:space-between;margin-top:18px}
+.spin{
+  flex:1 1 260px;max-width:380px;
+  font:700 16px/1.1 var(--f-display);letter-spacing:.02em;
+  color:#0b251f;background:var(--ink);border:0;border-radius:10px;padding:18px 24px;cursor:pointer;
+  box-shadow:0 4px 0 #b3a98e,0 12px 26px rgba(0,0,0,.4);
+  transition:transform .08s,box-shadow .08s,opacity .2s;
+}
+.spin:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #b3a98e,0 6px 14px rgba(0,0,0,.4)}
+.spin:disabled{opacity:.55;cursor:default}
+.toggles{display:flex;flex-wrap:wrap;gap:8px}
+.tog{font:500 13px var(--f-body);color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
+.tog[aria-pressed="true"]{color:var(--ink);border-color:rgba(243,236,218,.6)}
+.tog:disabled{opacity:.45;cursor:default}
+.tog.bonus{color:var(--ink);border-color:var(--ink)}
+.batch-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:16px}
+.batch-row .lbl{color:var(--muted);font-size:13px;margin-right:4px}
+.batch{display:flex;flex-direction:column;gap:8px;margin-top:6px;padding-top:12px;border-top:1px solid var(--line)}
+.sumchips{display:flex;flex-wrap:wrap;gap:6px}
+.sumchips span{font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid var(--accent);color:var(--accent);font-variant-numeric:tabular-nums}
+
+/* ---------- floating buttons and sheets ---------- */
+header{padding-right:56px}
+.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:40;display:flex;align-items:center;gap:10px;font:700 14px var(--f-display);color:#0b251f;background:var(--ink);border:0;border-radius:999px;padding:14px 20px;cursor:pointer;box-shadow:0 4px 0 #b3a98e,0 10px 26px rgba(0,0,0,.5)}
+.fab svg,.home svg{width:22px;height:22px;flex:none}
+.home{position:fixed;top:12px;right:12px;z-index:40;width:48px;height:48px;display:grid;place-items:center;border-radius:50%;background:var(--felt-2);border:2px solid currentColor;color:var(--muted);cursor:pointer;box-shadow:0 6px 16px rgba(0,0,0,.45)}
+.dot{position:absolute;top:-2px;right:-2px;width:14px;height:14px;border-radius:50%;background:var(--t4);border:2px solid var(--felt)}
+.dot[hidden]{display:none}
+.ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.62);display:flex;align-items:flex-end;justify-content:center}
+.ov[hidden]{display:none}
+.sheet{width:min(100%,780px);max-height:90vh;overflow:auto;background:var(--felt);background-image:radial-gradient(120% 40% at 50% -8%,var(--felt-2),transparent 70%);border:1px solid var(--line);border-radius:16px 16px 0 0;padding:18px 16px 32px}
+@media (min-width:760px){.ov{align-items:center}.sheet{border-radius:16px;padding:22px 24px 30px}}
+.sheet-h{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.sheet h2.g{margin:26px 0 10px}
+.x{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);font-size:18px;cursor:pointer}
+.vol{display:flex;align-items:center;gap:12px;margin-top:12px;color:var(--muted);font-size:14px}
+.vol input{flex:1;max-width:260px;accent-color:#f3ecda}
+.vol output{min-width:3.2em;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* ---------- info buttons ---------- */
+.inf{display:inline-grid;place-items:center;width:26px;height:26px;margin-left:10px;padding:0;border-radius:50%;border:1.5px solid var(--muted);background:transparent;color:var(--muted);font:700 14px/1 var(--f-body);letter-spacing:0;text-transform:none;vertical-align:middle;cursor:pointer}
+h1 .inf{font-size:15px;width:28px;height:28px}
+.inf[aria-expanded="true"]{background:var(--ink);border-color:var(--ink);color:var(--felt)}
+.tip{max-width:62ch;margin:0 0 14px;padding:10px 14px;border-left:3px solid var(--muted);background:var(--panel);border-radius:0 8px 8px 0;color:var(--muted);text-wrap:pretty}
+.tip[hidden]{display:none}
+.rinfo .tip,.up .tip{margin:0}
+
+/* ---------- shop ---------- */
+.shop{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(min(100%,270px),1fr))}
+.up{display:flex;flex-direction:column;gap:8px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.up p{margin:0;font-size:14px}
+.uph{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.uph b{font:700 14px var(--f-display)}
+.rk{font:700 14px var(--f-body);white-space:nowrap}
+.pips{display:grid;grid-template-columns:repeat(10,1fr);gap:3px}
+.pips i{height:6px;border-radius:2px;background:rgba(243,236,218,.12)}
+.pips i.on{background:var(--rc)}
+.buy{margin-top:auto;display:flex;justify-content:center;align-items:center;gap:8px;font:700 13px var(--f-display);color:#0b251f;background:var(--ink);border:0;border-radius:8px;padding:12px 14px;cursor:pointer;font-variant-numeric:tabular-nums}
+.buy:disabled{opacity:.45;cursor:default}
+.buy .coin{width:12px;height:12px;border-width:2px}
+.sell-sm small{display:block;color:var(--muted);font-size:11px}
+textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px;resize:vertical}
+
+/* ---------- collection ---------- */
+.split{display:grid;gap:32px;grid-template-columns:minmax(0,1fr)}
+@media (min-width:760px){.split{grid-template-columns:minmax(0,320px) minmax(0,1fr)}}
+.best .card{--w:min(100%,300px)}
+.inv{display:flex;gap:12px;overflow-x:auto;padding-bottom:12px;min-width:0}
+.inv-item{display:flex;flex-direction:column;gap:8px;flex:none;width:190px}
+.inv-item .card{--w:190px}
+.sell-sm{font:500 13px var(--f-body);color:var(--ink);background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;font-variant-numeric:tabular-nums}
+.invbar{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:4px}
+.note{color:var(--muted)}
+.small{font-size:13px;margin-top:8px}
+.link{background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;font:inherit;padding:6px 0;margin-top:6px}
+
+/* ---------- rarity ladder ---------- */
+.ladder{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.ladder li{
+  display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name cnt" "meter meter" "meta meta";
+  gap:6px 14px;align-items:center;padding:10px 14px;
+  border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;background:var(--panel);
+}
+@media (min-width:820px){.ladder li{grid-template-columns:210px 174px minmax(0,1fr) auto;grid-template-areas:"name meter meta cnt";gap:14px}}
+.lvn{grid-area:name;font:700 14px var(--f-display);color:var(--accent)}
+.ladder .meter{grid-area:meter}
+.lvm{grid-area:meta;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.lvc{grid-area:cnt;font-variant-numeric:tabular-nums;font-size:14px;white-space:nowrap}
+
+/* ---------- banks ---------- */
+.banks{list-style:none;margin:0;padding:0;display:grid;gap:8px 14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,290px),1fr))}
+.banks li{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;padding:9px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+.bnm{font-weight:500;min-width:0}
+.brk{grid-column:1;color:var(--muted);font-size:12px}
+.bbn{grid-row:1/span 2;grid-column:2;align-self:center;font:700 15px var(--f-display);font-variant-numeric:tabular-nums}
+.foot{color:var(--muted);font-size:13px;max-width:72ch}
+#confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50}
+</style>
+
+</head>
+<body>
+<main class="app">
+  <header>
+    <h1>Рулетка номеров карт <button class="inf" type="button" data-tip="t_lead" aria-expanded="false" aria-label="Как играть">!</button></h1>
+    <p class="lead tip" id="t_lead" hidden>Нажмите «Крутить»: цифры номера начнут сменяться и остановятся одна за другой. Каждая лишняя одинаковая цифра подряд поднимает карту на ступень выше: от обычной до легендарной, всего 15 ступеней. К цене добавляется надбавка банка. Кнопка «Магазин» справа внизу открывает улучшения: удача, скорость, пачки, налог. Домик справа вверху открывает профиль: ранг игрока и звук. Прогресс сохраняется сам в этом браузере.</p>
+    <p class="stats"><span>Баланс: <b id="bal">1 000</b> монет</span><span>Круток: <b id="spins">0</b></span><span>Самая дорогая карта: <b id="bestk">—</b></span><span>Статус: <b id="rank">Обычный</b></span><span>Налогов уплачено: <b id="taxp">0</b></span><span id="shw" hidden>Акции: <b id="shn">0</b></span></p>
+  </header>
+
+  <section aria-label="Игра">
+    <div class="stage">
+      <div class="live-wrap">
+        <div class="card tspin live" id="live" role="img" aria-label="Карта ждёт крутки">
+          <div class="cin">
+            <span class="bn" id="lbn">Ваш банк</span>
+            <div class="row2"><div class="chip"></div><span class="tl" id="ltl">Ожидание</span></div>
+            <div class="num" id="lnum"></div>
+            <div class="bot"><span class="rep" id="lrep">—</span><span class="pr"><span id="lpr">—</span><i class="coin"></i></span></div>
+          </div>
+        </div>
+      </div>
+      <div class="rinfo" id="info" aria-live="polite"></div>
+    </div>
+    <div class="batch-row" id="batch" hidden></div>
+    <div class="controls">
+      <button class="spin" id="spin" type="button">Крутить</button>
+      <button class="tog bonus" id="bonus" type="button" hidden>Взять 500 монет в подарок</button>
+      <div class="toggles">
+        <button class="tog" id="fast" type="button" aria-pressed="false">Быстрая крутка: выкл</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="split">
+    <section aria-label="Самая дорогая карта">
+      <h2>Самая дорогая карта</h2>
+      <div class="best" id="best"></div>
+    </section>
+    <section aria-label="Ваши карты">
+      <h2>Ваши карты <span id="capn" style="text-transform:none;letter-spacing:0;color:var(--ink)"></span><button class="inf" type="button" data-tip="capnote" aria-expanded="false" aria-label="Пояснение">!</button></h2>
+      <div class="inv" id="inv"></div>
+      <div class="invbar">
+        <button class="tog" id="sellLow" type="button">Продать всё ниже эпических</button>
+        <span class="note" id="invMsg" aria-live="polite"></span>
+      </div>
+      <p class="tip" id="capnote" hidden></p>
+    </section>
+  </div>
+
+  <section aria-label="Ступени редкости">
+    <h2>Ступени редкости <button class="inf" type="button" data-tip="t_lad" aria-expanded="false" aria-label="Пояснение">!</button></h2>
+    <p class="tip" id="t_lad" hidden>Редкость задаёт самый длинный ряд одинаковых цифр подряд. Закрашенные клетки показывают длину ряда из 16 цифр. Чем выше ступень, тем реже она выпадает и тем дороже карта.</p>
+    <ul class="ladder" id="tiers"></ul>
+  </section>
+
+  <section aria-label="Банки">
+    <h2>Банки и надбавка к цене <button class="inf" type="button" data-tip="t_bank" aria-expanded="false" aria-label="Пояснение">!</button></h2>
+    <p class="tip" id="t_bank" hidden>Названия банков и платёжных систем слегка изменены, любые совпадения с настоящими случайны. Надбавка зависит от размера банка по активам: чем крупнее банк, тем она больше и тем реже он выпадает.</p>
+    <ul class="banks" id="banks"></ul>
+  </section>
+
+  <p class="foot">Игра вымышленная <button class="inf" type="button" data-tip="t_foot" aria-expanded="false" aria-label="Пояснение">!</button></p>
+  <p class="foot tip" id="t_foot" hidden>Номера карт случайные и выдуманные: они не проходят проверку подлинности и не содержат реальных кодов банков. Названия используются только как метки в игре, игра с банками и платёжными системами не связана. Монеты не имеют денежной стоимости.</p>
+</main>
+<button class="fab" id="fabShop" type="button" aria-label="Открыть магазин улучшений"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0"/></svg><span>Магазин</span><i class="dot" id="fabDot" hidden></i></button>
+<button class="home" id="fabHome" type="button" aria-label="Открыть профиль"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><i class="dot" id="fabHomeDot" hidden></i></button>
+
+<div class="ov" id="ovShop" hidden role="dialog" aria-modal="true" aria-label="Магазин улучшений">
+  <div class="sheet">
+    <div class="sheet-h"><h2 style="margin:0">Магазин улучшений <button class="inf" type="button" data-tip="t_shop" aria-expanded="false" aria-label="Пояснение">!</button></h2><button class="x" type="button" aria-label="Закрыть">✕</button></div>
+    <p class="stats" style="margin:0 0 12px"><span>Баланс: <b id="bal2">1 000</b> монет</span></p>
+    <p class="tip" id="t_shop" hidden>Каждое улучшение это ранг: Обычный, Бронза, Серебро, Золото, Платина, Алмаз, Рубин, Изумруд, Корона, Легенда. Следующий ранг стоит заметно дороже предыдущего.</p>
+    <div class="shop" id="shop"></div>
+  </div>
+</div>
+
+<div class="ov" id="ovHome" hidden role="dialog" aria-modal="true" aria-label="Профиль">
+  <div class="sheet">
+    <div class="sheet-h"><h2 style="margin:0">Профиль</h2><button class="x" type="button" aria-label="Закрыть">✕</button></div>
+    <p class="stats" style="margin:0 0 12px"><span>Баланс: <b id="bal3">1 000</b> монет</span></p>
+    <div class="up" id="profBox"></div>
+    <p class="note small" id="profStats"></p>
+
+    <h2 class="g">Звук</h2>
+    <div class="toggles">
+      <button class="tog" id="snd" type="button" aria-pressed="true">Звук: вкл</button>
+      <button class="tog" id="tickT" type="button" aria-pressed="true">Щелчки при вращении: вкл</button>
+    </div>
+    <label class="vol">Громкость <input type="range" id="vol" min="0" max="100" step="5" value="70"><output id="volO" for="vol">70%</output></label>
+
+    <h2 class="g">Новый банк <button class="inf" type="button" data-tip="t_pr" aria-expanded="false" aria-label="Пояснение">!</button></h2>
+    <p class="tip" id="t_pr" hidden>Когда рост замедлится, откройте новый банк: монеты, коллекция и улучшения магазина обнулятся, зато вы получите акции. Каждая акция навсегда добавляет 25% к цене продажи. Ранг игрока, счётчик круток и лучшая карта остаются.</p>
+    <p id="prInfo" class="small"></p>
+    <button class="tog" id="prest" type="button" style="margin-top:10px" disabled>Новый банк</button>
+
+
+    <button class="link" id="reset" type="button" style="margin-top:18px">Сбросить игру</button>
+  </div>
+</div>
+<canvas id="confetti" aria-hidden="true"></canvas>
+
+<script>
+(function(){
+try{if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();Telegram.WebApp.setHeaderColor('#0b251f');Telegram.WebApp.setBackgroundColor('#0b251f')}}catch(e){}
+const $=id=>document.getElementById(id);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// LOGIC START
+const FAMS=['Обычная','Необычная','Редкая','Эпическая','Мифическая','Легендарная'];
+const ROMAN=['I','II','III','IV'];
+/* 15 ступеней: каждая лишняя цифра в ряду подряд даёт новую ступень (ряд до 2 цифр это самая нижняя) */
+const LV=[{k:2,fam:0,name:'Обычная'},{k:3,fam:1,name:'Необычная'}];
+[[4,5,2],[6,8,3],[9,12,4],[13,16,5]].forEach(([a,b,f])=>{for(let k=a;k<=b;k++)LV.push({k,fam:f,name:FAMS[f]+' '+ROMAN[k-a]})});
+const NLV=LV.length;
+const lvOf=k=>Math.min(16,Math.max(2,k))-2;
+/* шанс ступени в процентах: обычная 40%, дальше каждая следующая в 1,5 раза реже */
+const RR=0.66,XW=(100-40)*(1-RR)/(1-Math.pow(RR,NLV-1));
+const LW=LV.map((_,i)=>i===0?40:XW*Math.pow(RR,i-1));
+/* базовая цена ступени: каждая следующая дороже в 1,7 раза */
+const LP=LV.map((_,i)=>Math.round(40*Math.pow(1.7,i)/10)*10);
+const SPIN_COST=200,START_BAL=1000,BONUS=500;
+/* ранги улучшений: 10 ступеней, 9 покупок на каждую линию */
+const RANKS=['Обычный','Бронза','Серебро','Золото','Платина','Алмаз','Рубин','Изумруд','Корона','Легенда'];
+const RANK_COL=['#8fa4ae','#d08a4e','#cfd8de','#ffc83d','#7fe0d6','#7ec8ff','#ff5d73','#52c98a','#ffd35c','#ff8be8'];
+const MAXR=RANKS.length-1;
+const MULTI=[1,2,3,4,5,10,25,50,75,100];
+const PRANKS=['Обычный','Бронза','Серебро','Золото','Платина','Бриллиант','Рубин','Сапфир','Изумруд','Легенда'];
+const PCOL=['#8fa4ae','#d08a4e','#cfd8de','#ffc83d','#7fe0d6','#9fe3ff','#ff5d73','#4c7bff','#52c98a','#ff8be8'];
+const profCost=r=>Math.round(5000*Math.pow(6,r)/50)*50;
+const TRK=['multi','luck','speed','inc','tax','cap'];
+const TR_COST={multi:[900,3.6],luck:[1500,4],speed:[1200,3.4],inc:[2500,4.2],tax:[3000,4],cap:[1800,3.5]};
+const upCost=(id,r)=>Math.round(TR_COST[id][0]*Math.pow(TR_COST[id][1],r)/50)*50;
+/* удача: вес ступени i умножается на (1+0,035·ранг)^i, потом всё приводится к 100% */
+const lwFor=r=>{const w=LW.map((x,i)=>x*Math.pow(1+0.035*r,i));const t=w.reduce((a,b)=>a+b,0);return w.map(x=>x*100/t)};
+const speedK=r=>Math.max(.35,1-.07*r);
+const capFor=r=>60+10*r;
+/* налог с продажи одной карты: ступенчатый, ранг снижает каждую ставку на 2 пункта */
+const TAX=[[1000,.05],[10000,.10],[100000,.15],[1000000,.20],[Infinity,.25]];
+const taxCut=r=>2*r;
+function taxOf(g,cut){let t=0,prev=0;for(const[lim,rt]of TAX){const q=Math.max(0,rt-cut/100);if(g>prev)t+=(Math.min(g,lim)-prev)*q;prev=lim;if(g<=lim)break}return Math.round(t)}
+/* n: имя на карте, f: полное имя, b: надбавка к цене в % (по размеру банка), p: платёжная система. Названия слегка изменены. */
+const BANKS=[
+ {id:'b01',n:'ICBK',f:'Industrial and Commercial Bank of Chine',b:200},
+ {id:'b02',n:'Agri Bank of Chine',f:'Agricultural Bank of Chine',b:200},
+ {id:'b03',n:'Chine Constr. Bank',f:'Chine Construction Bank',b:200},
+ {id:'b04',n:'Bank of Chino',f:'Bank of Chino',b:200},
+ {id:'b05',n:'JPMorgen Chase',f:'JPMorgen Chase',b:140},
+ {id:'b06',n:'HSBK',f:'HSBK',b:140},
+ {id:'b07',n:'Bank of Amerika',f:'Bank of Amerika',b:140},
+ {id:'b08',n:'BNP Parabas',f:'BNP Parabas',b:140},
+ {id:'b09',n:'Crédit Agricolo',f:'Crédit Agricolo',b:140},
+ {id:'b10',n:'Postal Savinks',f:'Postal Savinks Bank of Chine',b:90},
+ {id:'b11',n:'MUFC',f:'Mitsubishi UFJ Finansial Group',b:90},
+ {id:'b12',n:'Citigroop',f:'Citigroop',b:90},
+ {id:'b13',n:'Santender',f:'Banco Santender',b:90},
+ {id:'b14',n:'Bank of Camm.',f:'Bank of Communikations',b:90},
+ {id:'b15',n:'Welds Fargo',f:'Welds Fargo',b:90},
+ {id:'b16',n:'Barklays',f:'Barklays',b:90},
+ {id:'b17',n:'SMBK Group',f:'SMBK Group',b:90},
+ {id:'b18',n:'Société Générala',f:'Société Générala',b:90},
+ {id:'b19',n:'Mizuha',f:'Mizuha Financial Group',b:90},
+ {id:'b20',n:'Chine Merchants',f:'Chine Merchants Bank',b:50},
+ {id:'b21',n:'BPCF',f:'BPCF Group',b:50},
+ {id:'b22',n:'Goldmen Sachs',f:'Goldmen Sachs',b:50},
+ {id:'b23',n:'RBK',f:'Royal Bank of Canade',b:50},
+ {id:'b24',n:'Deutsche Bonk',f:'Deutsche Bonk',b:50},
+ {id:'b25',n:'UBZ',f:'UBZ',b:50},
+ {id:'b26',n:'TD Banc',f:'Toronto-Dominion Banc',b:50},
+ {id:'b27',n:'Japen Post Bank',f:'Japen Post Bank',b:50},
+ {id:'b28',n:'Morgen Stanley',f:'Morgen Stanley',b:50},
+ {id:'b29',n:'Lloids',f:'Lloids Banking Group',b:50},
+ {id:'b30',n:'INQ',f:'INQ Group',b:50},
+ {id:'b31',n:'Intesa Sanpaulo',f:'Intesa Sanpaulo',b:50},
+ {id:'b32',n:'UniKredit',f:'UniKredit',b:50},
+ {id:'b33',n:'Сбербанг',f:'Сбербанг',b:30},
+ {id:'b34',n:'ВТП',f:'ВТП',b:15},
+ {id:'b35',n:'Газпромбанг',f:'Газпромбанг',b:10},
+ {id:'b36',n:'Альфа-Банг',f:'Альфа-Банг',b:10},
+ {id:'b37',n:'Т-Банг',f:'Т-Банг',b:10},
+ {id:'b38',n:'Viza',f:'Viza',b:120,p:1},
+ {id:'b39',n:'Mastercord',f:'Mastercord',b:120,p:1},
+ {id:'b40',n:'UnionPey',f:'UnionPey',b:80,p:1},
+ {id:'b41',n:'Amerikan Express',f:'Amerikan Express',b:60,p:1},
+ {id:'b42',n:'JCP',f:'JCP',b:40,p:1},
+ {id:'b43',n:'Мор',f:'Мор',b:25,p:1}
+];
+const BANK_W=BANKS.map(x=>100/(100+x.b));
+const rnd=n=>Math.floor(Math.random()*n);
+function pickW(ws){let s=0;for(const w of ws)s+=w;let r=Math.random()*s;for(let i=0;i<ws.length;i++){r-=ws[i];if(r<0)return i}return ws.length-1}
+function luhn(s){let sum=0;for(let i=0;i<s.length;i++){let d=+s[s.length-1-i];if(i%2){d*=2;if(d>9)d-=9}sum+=d}return sum%10===0}
+/* k: самый длинный ряд одинаковых цифр подряд, d: его цифра, s: позиция начала ряда (при равенстве берётся левый) */
+function analyze(num){
+  let k=1,s=0,run=1,rs=0;
+  for(let i=1;i<=16;i++){
+    if(i<16&&num[i]===num[i-1]){run++}
+    else{if(run>k){k=run;s=rs}run=1;rs=i}
+  }
+  const lv=lvOf(k);
+  return{num,d:+num[s],k,s,lv,tier:LV[lv].fam,name:LV[lv].name};
+}
+function makeNum(lv){
+  const R=LV[lv].k;
+  for(;;){
+    let a;
+    if(lv===0){a=Array.from({length:16},()=>rnd(10))}
+    else{
+      const d=rnd(10),st=rnd(17-R);
+      a=Array(16).fill(-1);
+      for(let i=st;i<st+R;i++)a[i]=d;
+      for(let i=0;i<16;i++)if(a[i]<0){
+        let v=rnd(10);
+        if(i===st-1||i===st+R){v=rnd(9);if(v>=d)v++}
+        a[i]=v;
+      }
+    }
+    const s=a.join('');
+    if(luhn(s))continue;
+    const c=analyze(s);
+    if(c.lv!==lv)continue;
+    return c;
+  }
+}
+/* цена = базовая цена ступени × надбавка банка × 3 для идеала (16 из 16) */
+function priceOf(c){
+  const v=LP[c.lv]*(1+c.b.b/100)*(c.k===16?3:1);
+  return Math.max(10,Math.round(v/10)*10);
+}
+function makeCard(lv){const c=makeNum(lv);c.b=BANKS[pickW(BANK_W)];c.price=priceOf(c);return c}
+function mkFrom(num,id){const b=BANKS.find(x=>x.id===id);if(!b)return null;const c=analyze(num);c.b=b;c.price=priceOf(c);return c}
+function ser(c){return c.num+':'+c.b.id}
+function de(s){const m=/^(\d{16}):([a-z0-9]+)$/.exec(String(s));return m?mkFrom(m[1],m[2]):null}
+/* барабан цифры: L+1 значений подряд (…, 3, 4, 5, …), последнее равно нужной цифре */
+function reelDigits(target,L){const a=[];for(let j=0;j<=L;j++)a.push((((target-(L-j))%10)+10)%10);return a}
+// LOGIC END
+
+const fmtP=n=>n.toLocaleString('ru-RU');
+const fmtPct=p=>p>=10?Math.round(p)+'%':p.toLocaleString('ru-RU',{maximumFractionDigits:p>=1?1:2})+'%';
+const repText=c=>c.k>=2?'<b>'+c.d+'</b> × '+c.k+' подряд':'без повторов';
+function plural(n){const m=n%100,l=n%10;return(m>=12&&m<=14)?'раз':(l>=2&&l<=4)?'раза':'раз'}
+function meterHTML(k,fam){
+  return '<span class="meter" style="--accent:var(--t'+fam+')" aria-hidden="true">'+Array.from({length:16},(_,i)=>'<i'+(i<k?' class="on"':'')+'></i>').join('')+'</span>';
+}
+function numHTML(c){
+  const show=c.k>=3;let out='';
+  for(let g=0;g<4;g++){
+    out+='<span class="g">';
+    for(let i=g*4;i<g*4+4;i++){const ch=c.num[i];out+=(show&&i>=c.s&&i<c.s+c.k)?'<i class="h">'+ch+'</i>':'<i>'+ch+'</i>'}
+    out+='</span>';
+  }
+  return out;
+}
+function cardHTML(c){
+  return '<div class="card t'+c.tier+'" role="img" aria-label="'+c.b.n+', '+c.name+', номер '+c.num+', цена '+fmtP(c.price)+' монет"><div class="cin">'
+    +'<span class="bn">'+c.b.n+'</span>'
+    +'<div class="row2"><div class="chip"></div><span class="tl">'+c.name+'</span></div>'
+    +'<div class="num">'+numHTML(c)+'</div>'
+    +'<div class="bot"><span class="rep">'+repText(c)+'</span><span class="pr">'+fmtP(c.price)+'<i class="coin"></i></span></div>'
+    +'</div></div>';
+}
+
+/* ---------- state ---------- */
+const KEY='ruletka-nomerov-kart-v5',OLD_KEY='ruletka-nomerov-kart-v4';
+const IDLE='<p class="rname">Ваша карта '+'<button class="inf" type="button" data-tip="t_idle" aria-expanded="false" aria-label="Пояснение">!</button></p><p class="muted">Нажмите «Крутить».</p><p class="tip" id="t_idle" hidden>Цифры начнут сменяться и остановятся одна за другой слева направо. Потом карта получит ступень редкости, банк и цену.</p>';
+const fresh=()=>({v:5,spins:0,counts:Array(NLV).fill(0),best:null,inv:[],bal:START_BAL,up:{multi:0,luck:0,speed:0,inc:0,tax:0,cap:0},taxPaid:0,earned:0,shares:0,runs:0,prof:0});
+function parseState(p){
+  if(!p||typeof p!=='object'||!Array.isArray(p.counts)||p.counts.length!==NLV)return null;
+  const n=(x,d=0)=>Number.isFinite(+x)?Math.max(0,Math.floor(+x)):d;
+  const o=fresh();
+  o.spins=n(p.spins);o.counts=p.counts.map(x=>n(x));o.bal=n(p.bal,START_BAL);
+  o.taxPaid=n(p.taxPaid);o.earned=n(p.earned);o.shares=n(p.shares);o.runs=n(p.runs);o.prof=Math.min(MAXR,n(p.prof));
+  TRK.forEach(id=>{o.up[id]=Math.min(MAXR,n(p.up&&p.up[id]))});
+  o.inv=(Array.isArray(p.inv)?p.inv:[]).filter(x=>de(x)).slice(0,capFor(o.up.cap));
+  o.best=de(p.best)?p.best:null;
+  return o;
+}
+let busy=false,shown=null,shownPrice=0,batchN=1,wantN=1,parm=0;
+let S=fresh();
+try{S=parseState(JSON.parse(localStorage.getItem(KEY)||'null'))||parseState(JSON.parse(localStorage.getItem(OLD_KEY)||'null'))||S}catch(e){}
+let CURLW=lwFor(S.up.luck);
+const incMul=()=>1+.08*S.up.inc+.10*S.prof+.25*S.shares;
+const SKEY='ruletka-nomerov-kart-set';
+const SET={snd:true,vol:70,tick:true};
+try{const q=JSON.parse(localStorage.getItem(SKEY)||'null');if(q){SET.snd=q.snd!==false;SET.tick=q.tick!==false;if(Number.isFinite(+q.vol))SET.vol=Math.min(100,Math.max(0,+q.vol))}}catch(e){}
+const saveSet=()=>{try{localStorage.setItem(SKEY,JSON.stringify(SET))}catch(e){}};
+const curCap=()=>capFor(S.up.cap);
+function sale(c){const g=Math.round(c.price*incMul());const t=taxOf(g,taxCut(S.up.tax));return{g,t,n:g-t}}
+function fmtB(n){
+  if(n<1e6)return fmtP(n);
+  for(const[v,u]of[[1e12,'трлн'],[1e9,'млрд'],[1e6,'млн']])if(n>=v){const x=n/v;return(x>=100?Math.round(x):x>=10?Math.round(x*10)/10:Math.round(x*100)/100).toLocaleString('ru-RU')+' '+u}
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+function renderBatch(){
+  const o=MULTI.slice(0,S.up.multi+1),aff=Math.max(1,Math.floor(S.bal/SPIN_COST));
+  batchN=Math.max(...o.filter(n=>n<=Math.min(wantN,aff)),1);
+  const el=$('batch');
+  el.hidden=o.length<2;
+  if(o.length<2){el.innerHTML='';return}
+  el.innerHTML='<span class="lbl">Открывать за раз:</span>'+o.map(n=>'<button class="tog" type="button" data-n="'+n+'" aria-pressed="'+(n===batchN)+'"'+(n>aff?' disabled':'')+'>×'+n+'</button>').join('');
+}
+function updateSpin(){
+  const b=$('spin');
+  if(busy){b.disabled=true;b.textContent='Крутится…';return}
+  const cost=batchN*SPIN_COST,can=S.bal>=cost;
+  b.disabled=!can;
+  b.textContent=can?((S.spins?'Крутить ещё':'Крутить')+(batchN>1?' ×'+batchN:'')+' · '+fmtB(cost)+' монет'):'Не хватает монет';
+  $('bonus').hidden=!(S.bal<SPIN_COST&&S.inv.length===0);
+}
+function refreshSellNow(){
+  const b=$('sellNow');if(!b||!shown)return;
+  const has=S.inv.includes(shown);
+  b.disabled=!has;b.textContent=has?('Продать · '+fmtB(sale(de(shown)).n)):'Продано';
+}
+const rankSum=()=>TRK.reduce((a,id)=>a+S.up[id],0);
+function renderStats(){
+  $('bal').textContent=fmtB(S.bal);$('bal2').textContent=fmtB(S.bal);$('bal3').textContent=fmtB(S.bal);
+  $('spins').textContent=fmtP(S.spins);
+  const b=S.best?de(S.best):null;
+  $('bestk').textContent=b?(fmtP(b.price)+' монет'):'—';
+  $('rank').textContent=PRANKS[S.prof];
+  $('taxp').textContent=fmtB(S.taxPaid);
+  $('shw').hidden=!S.shares;$('shn').textContent=S.shares;
+}
+function renderTiers(){document.querySelectorAll('[data-cnt]').forEach(el=>{el.textContent=S.counts[+el.dataset.cnt]})}
+function renderChances(){document.querySelectorAll('[data-ch]').forEach(el=>{el.textContent=fmtPct(CURLW[+el.dataset.ch])})}
+function renderBest(){const b=S.best?de(S.best):null;$('best').innerHTML=b?cardHTML(b):'<p class="note">Пока нет карт. Сделайте первую крутку.</p>'}
+function renderInv(){
+  $('inv').innerHTML=S.inv.length?S.inv.map((s,i)=>{
+    const c=de(s),v=sale(c);
+    return '<div class="inv-item">'+cardHTML(c)+'<button class="sell-sm" type="button" data-sell="'+i+'">Продать · '+fmtB(v.n)+(v.t?'<small>налог '+fmtB(v.t)+'</small>':'')+'</button></div>';
+  }).join(''):'<p class="note">Пока нет карт. Каждая выпавшая карта попадает сюда.</p>';
+  $('sellLow').disabled=!S.inv.some(s=>de(s).lv<=3);
+  $('capn').textContent=S.inv.length+' / '+curCap();
+  $('capnote').textContent='В коллекции '+S.inv.length+' из '+curCap()+' карт. При переполнении самая дешёвая из старых продаётся сама, с налогом. Цена продажи сейчас '+(incMul()>1?'+'+Math.round((incMul()-1)*100)+'% к цене на карте.':'равна цене на карте.');
+}
+const luckEpic=r=>lwFor(r).slice(4).reduce((a,b)=>a+b,0);
+const taxRange=r=>Math.max(0,TAX[0][1]*100-taxCut(r))+'–'+Math.max(0,TAX[TAX.length-1][1]*100-taxCut(r))+'%';
+const TRACKS=[
+ {id:'multi',n:'Открытие пачками',eff:r=>'За раз можно открыть ×'+MULTI[r]},
+ {id:'luck',n:'Удача',eff:r=>'Шанс эпической и выше: '+fmtPct(luckEpic(r))},
+ {id:'speed',n:'Скорость открытия',eff:r=>r?'Анимация быстрее в '+(1/speedK(r)).toFixed(1).replace('.',',')+' раза':'Обычная скорость анимации'},
+ {id:'inc',n:'Цена продажи',eff:r=>'Карты продаются на '+Math.round(8*r)+'% дороже'},
+ {id:'tax',n:'Налоговый статус',eff:r=>'Налог с продажи: '+taxRange(r)},
+ {id:'cap',n:'Размер коллекции',eff:r=>'В коллекции '+capFor(r)+' карт'}
+];
+function renderShop(){
+  $('shop').innerHTML=TRACKS.map(t=>{
+    const r=S.up[t.id],max=r>=MAXR,cost=max?0:upCost(t.id,r);
+    return '<div class="up" style="--rc:'+RANK_COL[r]+'"><div class="uph"><b>'+t.n+'</b><span class="rk" style="color:'+RANK_COL[r]+'">'+RANKS[r]+'</span></div>'
+      +'<div class="pips" aria-hidden="true">'+RANKS.map((_,i)=>'<i'+(i<=r?' class="on"':'')+'></i>').join('')+'</div>'
+      +'<p>'+t.eff(r)+'</p>'
+      +'<p class="muted">'+(max?'Максимальный ранг.':'Дальше: '+t.eff(r+1))+'</p>'
+      +'<button class="buy" type="button" data-up="'+t.id+'"'+(max||S.bal<cost?' disabled':'')+'>'+(max?'Максимум':'«'+RANKS[r+1]+'» · '+fmtB(cost)+'<i class="coin"></i>')+'</button></div>';
+  }).join('');
+  $('fabDot').hidden=!TRACKS.some(t=>S.up[t.id]<MAXR&&S.bal>=upCost(t.id,S.up[t.id]));
+}
+function renderProfile(){
+  const r=S.prof,max=r>=MAXR,cost=max?0:profCost(r),box=$('profBox');
+  box.style.setProperty('--rc',PCOL[r]);
+  box.innerHTML='<div class="uph"><b>Ранг игрока</b><span class="rk" style="color:'+PCOL[r]+'">'+PRANKS[r]+'</span></div>'
+    +'<div class="pips" aria-hidden="true">'+PRANKS.map((_,i)=>'<i'+(i<=r?' class="on"':'')+'></i>').join('')+'</div>'
+    +'<p>Ранг даёт +'+r*10+'% к цене продажи карт. Всего с акциями и улучшениями: +'+Math.round((incMul()-1)*100)+'%.</p>'
+    +'<p class="muted">'+(max?'Высший ранг достигнут.':'Дальше: «'+PRANKS[r+1]+'», +'+(r+1)*10+'% к цене продажи.')+'</p>'
+    +'<button class="buy" type="button" data-prof="1"'+(max||S.bal<cost?' disabled':'')+'>'+(max?'Максимум':'Стать: '+PRANKS[r+1]+' · '+fmtB(cost)+'<i class="coin"></i>')+'</button>';
+  $('fabHome').style.color=PCOL[r];
+  $('fabHomeDot').hidden=!(!max&&S.bal>=cost);
+  const b=S.best?de(S.best):null;
+  $('profStats').textContent='Круток: '+fmtP(S.spins)+'. Самая дорогая карта: '+(b?fmtP(b.price)+' монет':'—')+'. Налогов уплачено: '+fmtB(S.taxPaid)+'. Новых банков открыто: '+S.runs+'.';
+}
+const gainSh=()=>Math.floor(Math.sqrt(S.earned/2e6));
+function renderPrestige(){
+  const g=gainSh();
+  $('prInfo').innerHTML='Акции: <b>'+S.shares+'</b> (сейчас +'+(S.shares*25)+'% к цене продажи). Заработано в этом банке: <b>'+fmtB(S.earned)+'</b>. '
+    +(g?'Можно получить акций: <b>'+g+'</b>. ':'')+'Следующая акция при <b>'+fmtB((g+1)*(g+1)*2e6)+'</b> заработанных монет.'+(S.runs?' Банков открыто: '+S.runs+'.':'');
+  const b=$('prest');b.disabled=!g;
+  if(!parm)b.textContent=g?'Открыть новый банк · +'+g+' акц.':'Новый банк пока недоступен';
+}
+function renderAll(){CURLW=lwFor(S.up.luck);renderStats();renderTiers();renderChances();renderBest();renderInv();renderBatch();renderShop();renderProfile();renderPrestige();updateSpin();refreshSellNow()}
+function msg(t){$('invMsg').textContent=t}
+function setInfo(h){$('info').innerHTML=h}
+
+$('tiers').innerHTML=LV.map((l,i)=>
+  '<li style="--accent:var(--t'+l.fam+')"><span class="lvn">'+l.name+'</span>'+meterHTML(l.k,l.fam)
+  +'<span class="lvm">'+(i===0?'до 2':l.k)+' подряд · шанс <span data-ch="'+i+'">'+fmtPct(LW[i])+'</span> · от '+fmtP(LP[i])+' монет</span>'
+  +'<span class="lvc">Выпало: <b data-cnt="'+i+'">0</b></span></li>'
+).join('');
+const sizeName=x=>x.p?'платёжная система':x.b>=200?'гигант':x.b>=140?'очень крупный':x.b>=90?'крупный':x.b>=50?'средний':'небольшой';
+$('banks').innerHTML=[...BANKS].sort((a,b)=>b.b-a.b).map(x=>
+  '<li><span class="bnm">'+x.f+'</span><span class="brk">'+sizeName(x)+'</span><span class="bbn">+'+x.b+'%</span></li>'
+).join('');
+renderAll();
+setInfo(IDLE);
+
+/* ---------- selling ---------- */
+function sellAt(i){
+  const s=S.inv[i];if(!s)return;
+  const c=de(s),v=sale(c);S.inv.splice(i,1);S.bal+=v.n;S.taxPaid+=v.t;S.earned+=v.n;
+  save();renderAll();msg('Продано: '+c.b.n+', на руки '+fmtB(v.n)+(v.t?' (налог '+fmtB(v.t)+')':''));
+}
+$('inv').addEventListener('click',e=>{const b=e.target.closest('[data-sell]');if(b)sellAt(+b.dataset.sell)});
+$('info').addEventListener('click',e=>{
+  if(!e.target.closest('#sellNow')||!shown)return;
+  const i=S.inv.indexOf(shown);if(i>=0)sellAt(i);
+});
+$('sellLow').addEventListener('click',()=>{
+  let sum=0,tax=0,n=0;
+  S.inv=S.inv.filter(s=>{const c=de(s);if(c.lv<=3){const v=sale(c);sum+=v.n;tax+=v.t;n++;return false}return true});
+  if(n){S.bal+=sum;S.taxPaid+=tax;S.earned+=sum;save();renderAll();msg('Продано карт: '+n+', на руки '+fmtB(sum)+' (налог '+fmtB(tax)+')')}
+});
+$('bonus').addEventListener('click',()=>{S.bal+=BONUS;save();renderAll();msg('')});
+$('batch').addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b||busy||b.disabled)return;wantN=+b.dataset.n;renderBatch();updateSpin()});
+$('shop').addEventListener('click',e=>{
+  const b=e.target.closest('[data-up]');if(!b)return;
+  const id=b.dataset.up,r=S.up[id];if(r>=MAXR)return;
+  const cost=upCost(id,r);if(S.bal<cost)return;
+  S.bal-=cost;S.up[id]=r+1;
+  if(id==='multi')wantN=MULTI[r+1];
+  save();renderAll();
+  const nb=document.querySelector('[data-up="'+id+'"]');if(nb)nb.focus();
+});
+
+/* ---------- sound ---------- */
+let soundOn=SET.snd,ac=null;
+function ensureAudio(){
+  if(!soundOn)return;
+  try{ac=ac||new(window.AudioContext||window.webkitAudioContext)();if(ac.state==='suspended')ac.resume()}catch(e){ac=null}
+}
+function beep(freq,t0,dur,type,vol){
+  if(!ac)return;
+  try{
+    const o=ac.createOscillator(),g=ac.createGain();
+    o.type=type;o.frequency.value=freq;
+    g.gain.setValueAtTime(Math.max(.0002,vol*SET.vol/70),ac.currentTime+t0);
+    g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+t0+dur);
+    o.connect(g);g.connect(ac.destination);
+    o.start(ac.currentTime+t0);o.stop(ac.currentTime+t0+dur+.02);
+  }catch(e){}
+}
+function tick(){if(soundOn&&ac&&SET.tick)beep(820+Math.random()*120,0,.04,'triangle',.04)}
+function clunk(i){if(soundOn&&ac)beep(150+i*14,0,.11,'square',.035)}
+function fan(lv){
+  if(!soundOn||!ac)return;
+  const seq=[0,4,7,12,16,19,24,28].slice(0,Math.min(8,1+Math.floor(lv/2)));
+  seq.forEach((s,i)=>beep(330*Math.pow(2,s/12),i*.09,.45,lv>7?'triangle':'sine',.07));
+}
+function syncSound(){
+  $('snd').setAttribute('aria-pressed',String(soundOn));$('snd').textContent='Звук: '+(soundOn?'вкл':'выкл');
+  $('tickT').setAttribute('aria-pressed',String(SET.tick));$('tickT').textContent='Щелчки при вращении: '+(SET.tick?'вкл':'выкл');
+  $('vol').value=SET.vol;$('volO').textContent=SET.vol+'%';
+}
+$('snd').addEventListener('click',()=>{soundOn=!soundOn;SET.snd=soundOn;saveSet();syncSound();ensureAudio();if(soundOn)beep(660,0,.15,'sine',.08)});
+$('tickT').addEventListener('click',()=>{SET.tick=!SET.tick;saveSet();syncSound()});
+$('vol').addEventListener('input',()=>{SET.vol=+$('vol').value;saveSet();syncSound()});
+$('vol').addEventListener('change',()=>{ensureAudio();if(soundOn)beep(660,0,.15,'sine',.08)});
+syncSound();
+$('fast').addEventListener('click',()=>{
+  const on=$('fast').getAttribute('aria-pressed')!=='true';
+  $('fast').setAttribute('aria-pressed',String(on));
+  $('fast').textContent='Быстрая крутка: '+(on?'вкл':'выкл');
+});
+
+/* ---------- confetti: from the epic steps and above, more the higher the step ---------- */
+function confetti(lv,fam){
+  if(reduce||lv<4)return;
+  const cv=$('confetti'),ctx=cv.getContext('2d');if(!ctx)return;
+  const dpr=Math.min(2,window.devicePixelRatio||1);
+  cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;
+  const cols={3:['#a374ff','#e8dcff'],4:['#ff5d73','#ffd5db','#ffffff'],5:['#ffc83d','#fff1a6','#ffffff','#e9bb3c']}[fam]||['#ffffff'];
+  const n=Math.round(30+lv*16);
+  const r=$('live').getBoundingClientRect();
+  const ox=(r.left+r.width/2)*dpr,oy=(r.top+r.height/2)*dpr;
+  const ps=Array.from({length:n},()=>{
+    const a=Math.random()*Math.PI*2,s=(4+Math.random()*9)*dpr;
+    return{x:ox,y:oy,vx:Math.cos(a)*s,vy:Math.sin(a)*s-6*dpr,r:(3+Math.random()*4)*dpr,c:cols[rnd(cols.length)],rot:Math.random()*6,vr:(Math.random()-.5)*.4};
+  });
+  let f=0;
+  (function loop(){
+    ctx.clearRect(0,0,cv.width,cv.height);f++;
+    for(const p of ps){
+      p.vy+=.28*dpr;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();
+    }
+    if(f<170)requestAnimationFrame(loop);else ctx.clearRect(0,0,cv.width,cv.height);
+  })();
+}
+
+/* ---------- live card: digits change one after another ---------- */
+const live=$('live'),lbn=$('lbn'),ltl=$('ltl'),lrep=$('lrep'),lpr=$('lpr');
+$('lnum').innerHTML=[0,1,2,3].map(()=>'<span class="g">'+'<span class="cell"></span>'.repeat(4)+'</span>').join('');
+const cellEls=[...live.querySelectorAll('.cell')];
+const IDLE_NUM='1234567890123456';
+function idleCard(){
+  live.className='card tspin live';
+  live.setAttribute('aria-label','Карта ждёт крутки');
+  lbn.textContent='Ваш банк';ltl.textContent='Ожидание';lrep.textContent='—';lpr.textContent='—';
+  cellEls.forEach((c,i)=>{c.textContent=IDLE_NUM[i];c.className='cell stopped'});
+}
+idleCard();
+
+function showResult(c,newBest,batch){
+  shown=ser(c);const v=sale(c);shownPrice=v.n;
+  let extra='';
+  if(c.k===16)extra='<span class="flag">Идеал: все 16 цифр одинаковые</span>';
+  else if(c.tier===5)extra='<span class="flag">Легенда</span>';
+  else if(newBest)extra='<span class="flag">Новая самая дорогая карта</span>';
+  const bankLine=c.b.p?('Платёжная система: <b>'+c.b.n+'</b>'):('Банк: <b>'+c.b.n+'</b>');
+  let sum='';
+  if(batch){
+    const chips=batch.counts.map((n,i)=>n?'<span style="--accent:var(--t'+LV[i].fam+')">'+LV[i].name+' ×'+n+'</span>':'').reverse().join('');
+    sum='<div class="batch"><p><b>Открыто карт: '+batch.n+'</b> за '+fmtB(batch.cost)+' монет. Вместе они стоят <b>'+fmtB(batch.total)+'</b> до налога.</p>'
+      +'<div class="sumchips">'+chips+'</div>'
+      +(batch.autoN?'<p class="muted">Коллекция полна: '+batch.autoN+' самых дешёвых карт проданы, на руки '+fmtB(batch.autoSum)+' монет.</p>':'')+'</div>';
+  }
+  setInfo((batch?'<p class="muted">Лучшая карта из '+batch.n+':</p>':'')
+    +'<p class="rname" style="color:var(--t'+c.tier+')">'+c.name+'</p>'
+    +meterHTML(c.k,c.tier)
+    +(c.k>=2?'<p>Цифра <b>'+c.d+'</b> идёт подряд <b>'+c.k+'</b> '+plural(c.k)+' из 16.</p>':'<p>Одинаковых цифр подряд нет.</p>')
+    +'<p class="muted">Ступень <b>'+(c.lv+1)+'</b> из '+NLV+', шанс '+fmtPct(CURLW[c.lv])+'.</p>'
+    +'<p>'+bankLine+', надбавка <b>+'+c.b.b+'%</b> к цене.</p>'
+    +'<p class="price">'+fmtP(c.price)+' <small>монет</small></p>'
+    +'<p class="muted">При продаже: '+fmtB(v.g)+(v.t?', налог '+fmtB(v.t)+', на руки '+fmtB(v.n):'')+'</p>'
+    +'<button class="sell" id="sellNow" type="button">Продать · '+fmtB(v.n)+'</button>'
+    +'<p class="muted">'+(batch?'Карты уже в вашей коллекции.':'Карта уже лежит в вашей коллекции.')+'</p>'+extra+sum);
+}
+
+function countUp(target){
+  if(reduce){lpr.textContent=fmtP(target);return}
+  const t0=performance.now(),D=900;
+  (function f(now){
+    const t=Math.min(1,(now-t0)/D),e=1-Math.pow(1-t,3);
+    lpr.textContent=fmtP(t<1?Math.round(target*e):target);
+    if(t<1)requestAnimationFrame(f);
+  })(t0);
+}
+
+function land(card,cards,cost){
+  live.className='card t'+card.tier+' live land';
+  live.setAttribute('aria-label',card.b.n+', '+card.name+', номер '+card.num+', цена '+fmtP(card.price)+' монет');
+  ltl.textContent=card.name;
+  lrep.innerHTML=repText(card);
+  const show=card.k>=3;
+  cellEls.forEach((c,i)=>{c.className='cell'+((show&&i>=card.s&&i<card.s+card.k)?' h':'')});
+  countUp(card.price);
+
+  const prev=S.best?de(S.best):null;
+  const newBest=!!prev&&card.price>prev.price;
+  if(!prev||card.price>prev.price)S.best=ser(card);
+  S.spins+=cards.length;
+  const counts=Array(NLV).fill(0);
+  cards.forEach(c=>{S.counts[c.lv]++;counts[c.lv]++});
+  const rest=cards.filter(c=>c!==card).sort((a,b)=>b.price-a.price);
+  S.inv.unshift(ser(card),...rest.map(ser));
+  let autoN=0,autoSum=0;
+  while(S.inv.length>curCap()){
+    let li=1,lp=Infinity;
+    for(let i=1;i<S.inv.length;i++){const p=de(S.inv[i]).price;if(p<lp){lp=p;li=i}}
+    const v=sale(de(S.inv[li]));
+    S.inv.splice(li,1);S.bal+=v.n;S.taxPaid+=v.t;S.earned+=v.n;autoN++;autoSum+=v.n;
+  }
+  const total=cards.reduce((a,c)=>a+sale(c).g,0);
+  busy=false;
+  save();renderAll();
+  msg(autoN&&cards.length===1?'Коллекция полна: самая дешёвая карта продана, на руки '+fmtB(autoSum)+' монет.':'');
+  showResult(card,newBest,cards.length>1?{n:cards.length,cost,total,counts,autoN,autoSum}:null);
+  fan(card.lv);confetti(card.lv,card.tier);
+}
+
+function spin(){
+  const N=batchN,cost=N*SPIN_COST;
+  if(busy||S.bal<cost)return;
+  busy=true;
+  S.bal-=cost;save();renderStats();updateSpin();
+  ensureAudio();
+  const cards=Array.from({length:N},()=>makeCard(pickW(CURLW)));
+  const card=cards.reduce((a,b)=>(b.price>a.price||(b.price===a.price&&b.lv>a.lv))?b:a);
+  const fast=$('fast').getAttribute('aria-pressed')==='true';
+  const k=reduce?.1:(fast?.28:(N>1?.5:1))*speedK(S.up.speed);
+  live.className='card tspin live';
+  live.setAttribute('aria-label','Карта крутится');
+  ltl.textContent='···';lrep.textContent='—';lpr.textContent='???';
+  setInfo('<p class="rname muted">Крутим…</p><p class="muted">'+(N>1?'Открываем карты: '+N+' шт. На экране появится лучшая из них, остальные лягут в коллекцию.':'Цифры останавливаются слева направо. Потом станут известны ступень редкости, банк и цена.')+'</p>');
+  const L=[],D=[];
+  const R=[],pos=Array(16).fill(0);
+  cellEls.forEach((c,i)=>{
+    L[i]=22+i*5+rnd(6);D[i]=(1500+i*270)*k;
+    R[i]=reelDigits(+card.num[i],L[i]);
+    c.textContent=R[i][0];
+    c.className='cell rolling';
+  });
+  const bankStop=(1500+8*270)*k;
+  const t0=performance.now();
+  const done=Array(16).fill(false);
+  let left=16,bankSet=false,lastBank=0,lastTick=0;
+  function frame(now){
+    const el=now-t0;
+    for(let i=0;i<16;i++){
+      if(done[i])continue;
+      const t=Math.min(1,el/D[i]),e=1-Math.pow(1-t,3);
+      const p=t>=1?L[i]:Math.floor(L[i]*e);
+      if(p!==pos[i]){pos[i]=p;cellEls[i].textContent=R[i][p]}
+      if(t>=1){done[i]=true;left--;cellEls[i].className='cell stopped';clunk(i)}
+    }
+    if(!bankSet){
+      if(el>=bankStop){lbn.textContent=card.b.n;bankSet=true}
+      else if(now-lastBank>70){lbn.textContent=BANKS[rnd(BANKS.length)].n;lastBank=now}
+    }
+    if(left>0&&now-lastTick>55){tick();lastTick=now}
+    if(left>0||!bankSet)requestAnimationFrame(frame);else land(card,cards,cost);
+  }
+  requestAnimationFrame(frame);
+}
+$('spin').addEventListener('click',spin);
+
+/* ---------- reset, new bank, save code ---------- */
+function toIdle(){shown=null;shownPrice=0;wantN=1;idleCard();setInfo(IDLE)}
+let armed=0;
+$('reset').addEventListener('click',()=>{
+  const b=$('reset');
+  if(!armed){
+    armed=setTimeout(()=>{armed=0;b.textContent='Сбросить игру'},3500);
+    b.textContent='Нажмите ещё раз, чтобы стереть всё';
+    return;
+  }
+  clearTimeout(armed);armed=0;b.textContent='Сбросить игру';
+  if(busy)return;
+  S=fresh();save();renderAll();msg('');toIdle();
+});
+$('prest').addEventListener('click',()=>{
+  const g=gainSh(),b=$('prest');
+  if(!g||busy)return;
+  if(!parm){
+    parm=setTimeout(()=>{parm=0;renderPrestige()},4000);
+    b.textContent='Нажмите ещё раз: всё обнулится ради +'+g+' акц.';
+    return;
+  }
+  clearTimeout(parm);parm=0;
+  S.shares+=g;S.runs++;S.bal=START_BAL;S.inv=[];S.earned=0;TRK.forEach(id=>{S.up[id]=0});
+  save();renderAll();msg('');toIdle();
+  setInfo('<p class="rname">Новый банк открыт</p><p>Получено акций: <b>'+g+'</b>. Теперь карты продаются на <b>'+Math.round((incMul()-1)*100)+'%</b> дороже. Ранги и монеты начаты заново.</p>');
+});
+let lastFocus=null;
+function openOv(id){const o=$(id);lastFocus=document.activeElement;o.hidden=false;document.body.style.overflow='hidden';o.querySelector('.x').focus()}
+function closeOv(){
+  if(![...document.querySelectorAll('.ov')].some(o=>!o.hidden))return;
+  document.querySelectorAll('.ov').forEach(o=>{o.hidden=true});document.body.style.overflow='';
+  if(lastFocus&&lastFocus.focus)lastFocus.focus();
+}
+$('fabShop').addEventListener('click',()=>openOv('ovShop'));
+$('fabHome').addEventListener('click',()=>openOv('ovHome'));
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o||e.target.closest('.x'))closeOv()}));
+addEventListener('keydown',e=>{if(e.key==='Escape')closeOv()});
+$('profBox').addEventListener('click',e=>{
+  if(!e.target.closest('[data-prof]'))return;
+  const r=S.prof;if(r>=MAXR)return;
+  const c=profCost(r);if(S.bal<c)return;
+  S.bal-=c;S.prof=r+1;save();renderAll();
+  const nb=document.querySelector('[data-prof]');if(nb)nb.focus();
+});
+document.addEventListener('click',e=>{
+  const b=e.target.closest('.inf');if(!b)return;
+  const t=document.getElementById(b.dataset.tip);if(!t)return;
+  const open=t.hidden;t.hidden=!open;b.setAttribute('aria-expanded',String(open));
+});
+addEventListener('pagehide',save);
+document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
+})();
+</script>
+</body>
+</html>
