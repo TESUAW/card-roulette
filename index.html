@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script async src="https://telegram.org/js/telegram-web-app.js"></script>
 <title>Рулетка номеров карт</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;700&family=Share+Tech+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;700&family=Share+Tech+Mono&family=Unbounded:wght@500;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <style>
 /* Layout: one column on a green casino-felt table. A stage with one big card whose 16 digits change one after another, rarity and price on the right, then the player's cards, the 15-step rarity ladder and the bank price list. */
 :root{
@@ -324,7 +324,8 @@ textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);
 
 <script>
 (function(){
-try{if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();Telegram.WebApp.setHeaderColor('#0b251f');Telegram.WebApp.setBackgroundColor('#0b251f')}}catch(e){}
+function tgInit(){try{if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();Telegram.WebApp.setHeaderColor('#0b251f');Telegram.WebApp.setBackgroundColor('#0b251f')}}catch(e){}}
+if(document.readyState==='complete')tgInit();else addEventListener('load',tgInit);
 const $=id=>document.getElementById(id);
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -561,7 +562,7 @@ const taxRange=r=>Math.max(0,TAX[0][1]*100-taxCut(r))+'–'+Math.max(0,TAX[TAX.l
 const TRACKS=[
  {id:'multi',n:'Открытие пачками',eff:r=>'За раз можно открыть ×'+MULTI[r]},
  {id:'luck',n:'Удача',eff:r=>'Шанс эпической и выше: '+fmtPct(luckEpic(r))},
- {id:'speed',n:'Скорость открытия',eff:r=>r?'Анимация быстрее в '+(1/speedK(r)).toFixed(1).replace('.',',')+' раза':'Обычная скорость анимации'},
+ {id:'speed',n:'Скорость открытия',eff:r=>r?'Крутка быстрее в '+(1/speedK(r)).toFixed(1).replace('.',',')+' раза, быстрая крутка ×'+(1/(.28*speedK(r))).toFixed(1).replace('.',','):'Обычная скорость, быстрая крутка закрыта'},
  {id:'inc',n:'Цена продажи',eff:r=>'Карты продаются на '+Math.round(8*r)+'% дороже'},
  {id:'tax',n:'Налоговый статус',eff:r=>'Налог с продажи: '+taxRange(r)},
  {id:'cap',n:'Размер коллекции',eff:r=>'В коллекции '+capFor(r)+' карт'}
@@ -598,7 +599,13 @@ function renderPrestige(){
   const b=$('prest');b.disabled=!g;
   if(!parm)b.textContent=g?'Открыть новый банк · +'+g+' акц.':'Новый банк пока недоступен';
 }
-function renderAll(){CURLW=lwFor(S.up.luck);renderStats();renderTiers();renderChances();renderBest();renderInv();renderBatch();renderShop();renderProfile();renderPrestige();updateSpin();refreshSellNow()}
+function renderFast(){
+  const b=$('fast'),r=S.up.speed;
+  if(r<1){b.disabled=true;b.setAttribute('aria-pressed','false');b.textContent='Быстрая крутка: закрыта (магазин, Скорость)';return}
+  b.disabled=false;
+  b.textContent='Быстрая крутка ×'+(1/(.28*speedK(r))).toFixed(1).replace('.',',')+': '+(b.getAttribute('aria-pressed')==='true'?'вкл':'выкл');
+}
+function renderAll(){CURLW=lwFor(S.up.luck);renderFast();renderStats();renderTiers();renderChances();renderBest();renderInv();renderBatch();renderShop();renderProfile();renderPrestige();updateSpin();refreshSellNow()}
 function msg(t){$('invMsg').textContent=t}
 function setInfo(h){$('info').innerHTML=h}
 
@@ -677,9 +684,9 @@ $('vol').addEventListener('input',()=>{SET.vol=+$('vol').value;saveSet();syncSou
 $('vol').addEventListener('change',()=>{ensureAudio();if(soundOn)beep(660,0,.15,'sine',.08)});
 syncSound();
 $('fast').addEventListener('click',()=>{
-  const on=$('fast').getAttribute('aria-pressed')!=='true';
-  $('fast').setAttribute('aria-pressed',String(on));
-  $('fast').textContent='Быстрая крутка: '+(on?'вкл':'выкл');
+  if(S.up.speed<1)return;
+  $('fast').setAttribute('aria-pressed',String($('fast').getAttribute('aria-pressed')!=='true'));
+  renderFast();
 });
 
 /* ---------- confetti: from the epic steps and above, more the higher the step ---------- */
@@ -796,7 +803,7 @@ function spin(){
   ensureAudio();
   const cards=Array.from({length:N},()=>makeCard(pickW(CURLW)));
   const card=cards.reduce((a,b)=>(b.price>a.price||(b.price===a.price&&b.lv>a.lv))?b:a);
-  const fast=$('fast').getAttribute('aria-pressed')==='true';
+  const fast=S.up.speed>=1&&$('fast').getAttribute('aria-pressed')==='true';
   const k=reduce?.1:(fast?.28:(N>1?.5:1))*speedK(S.up.speed);
   live.className='card tspin live';
   live.setAttribute('aria-label','Карта крутится');
