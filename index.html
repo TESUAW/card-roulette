@@ -137,6 +137,8 @@ p{margin:0}
 .spin:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 #b3a98e,0 6px 14px rgba(0,0,0,.4)}
 .spin:disabled{opacity:.55;cursor:default}
 .toggles{display:flex;flex-wrap:wrap;gap:8px}
+.accbox{display:grid;gap:8px}
+.accin{font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line,rgba(255,255,255,.25));background:rgba(0,0,0,.25);color:inherit;width:100%;box-sizing:border-box}
 .tog{font:500 13px var(--f-body);color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
 .tog[aria-pressed="true"]{color:var(--ink);border-color:rgba(243,236,218,.6)}
 .tog:disabled{opacity:.45;cursor:default}
@@ -415,6 +417,10 @@ textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);
       <button class="tog" id="fxT" type="button" aria-pressed="true">Эпичные эффекты: вкл</button>
     </div>
     <label class="vol">Громкость <input type="range" id="vol" min="0" max="100" step="5" value="70"><output id="volO" for="vol">70%</output></label>
+
+    <h2 class="g">Аккаунт <button class="inf" type="button" data-tip="t_acc" aria-expanded="false" aria-label="Пояснение">!</button></h2>
+    <p class="tip" id="t_acc" hidden>Войдите, чтобы прогресс всех режимов хранился на сервере и был на любом устройстве. Можно указать почту или придуманный логин. По логину пароль восстановить нельзя, запомните его. Если на двух устройствах разный прогресс, загрузится тот, который сохранялся позже.</p>
+    <div id="accBox" class="accbox"></div>
 
     <h2 class="g">Новый банк <button class="inf" type="button" data-tip="t_pr" aria-expanded="false" aria-label="Пояснение">!</button></h2>
     <p class="tip" id="t_pr" hidden>Когда рост замедлится, откройте новый банк: монеты, коллекция и улучшения магазина обнулятся, зато вы получите акции. Каждая акция навсегда добавляет 25% к цене продажи. Ранг игрока, счётчик круток и лучшая карта остаются.</p>
@@ -798,12 +804,13 @@ let busy=false,shown=null,shownPrice=0,batchN=1,wantN=1,parm=0;
 let S=fresh();
 try{S=parseState(JSON.parse(localStorage.getItem(KEY)||'null'))||parseState(JSON.parse(localStorage.getItem(OLD_KEY)||'null'))||S}catch(e){}
 const achLuck=()=>ACH.reduce((a,x)=>a+(S.ach[x[0]]?x[6]:0),0);
-/* события: банк дня и час удачи зависят от даты */
-const dayBank=()=>BANKS[(dayNum()*11+3)%BANKS.length];
-const dayCountry=()=>COUNTRIES[(dayNum()*5+2)%COUNTRIES.length];
+/* события: банк, страна, оператор и регион дня меняются каждые 5 минут */
+const slotNum=()=>Math.floor(Date.now()/300000);
+const dayBank=()=>BANKS[(slotNum()*11+3)%BANKS.length];
+const dayCountry=()=>COUNTRIES[(slotNum()*5+2)%COUNTRIES.length];
 const luckyHourOf=dn=>(dn*7+5)%24;
 const isLucky=()=>new Date().getHours()===luckyHourOf(dayNum());
-const luckEff=()=>S.up.luck+achLuck()+(isLucky()?3:0);
+const luckEff=()=>S.up.luck+achLuck();
 let CURLW=lwFor(luckEff());
 const incMul=()=>1+.08*S.up.inc+.10*S.prof+.25*S.shares+albumBonus(S);
 const SKEY='ruletka-nomerov-kart-set';
@@ -812,8 +819,8 @@ try{const q=JSON.parse(localStorage.getItem(SKEY)||'null');if(q){SET.snd=q.snd!=
 const saveSet=()=>{try{localStorage.setItem(SKEY,JSON.stringify(SET))}catch(e){}};
 const curCap=()=>capFor(S.up.cap);
 const isPass=()=>S.game==='pass';
-const dayCarrier=()=>CARRIERS[(dayNum()*7+1)%CARRIERS.length];
-const dayRegion=()=>REGIONS[(dayNum()*3+4)%REGIONS.length];
+const dayCarrier=()=>CARRIERS[(slotNum()*7+1)%CARRIERS.length];
+const dayRegion=()=>REGIONS[(slotNum()*3+4)%REGIONS.length];
 const dayIds=()=>[dayBank().id,dayCountry().id,dayCarrier().id,dayRegion().id];
 function sale(c){const g=Math.round(c.price*incMul()*(dayIds().includes(c.b.id)?2:1));const t=taxOf(g,taxCut(S.up.tax));return{g,t,n:g-t}}
 const TGC=()=>{try{const w=window.Telegram&&Telegram.WebApp;return(w&&w.CloudStorage&&(!w.isVersionAtLeast||w.isVersionAtLeast('6.9')))?w.CloudStorage:null}catch(e){return null}};
@@ -858,7 +865,131 @@ function fmtB(n){
   if(n<1e6)return fmtP(n);
   for(const[v,u]of[[1e12,'трлн'],[1e9,'млрд'],[1e6,'млн']])if(n>=v){const x=n/v;return(x>=100?Math.round(x):x>=10?Math.round(x*10)/10:Math.round(x*100)/100).toLocaleString('ru-RU')+' '+u}
 }
-function save(){S.ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}cloudPush()}
+/* ---------- аккаунты: логин или почта + пароль, вход через Google (Supabase) ---------- */
+const SB={url:'https://eparfvqhynkkybrymgpo.supabase.co',key:'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVwYXJmdnFoeW5ra3licnltZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE1NzM1NDgsImV4cCI6MjEwNzE0OTU0OH0.6Ts60lUP7RiZ-LuSEE9UpNOQux-_nCr3w-mLz5UiP4Y'};
+const AKEY='ruletka-nomerov-kart-acc',FAKE='@login.ruletka.game';
+let ACC=null;try{ACC=JSON.parse(localStorage.getItem(AKEY)||'null')}catch(e){}
+if(!ACC||!ACC.at||!ACC.rt)ACC=null;
+let accT=0,accBusy=false,accNote='';
+const sbOn=()=>!!(SB.url&&SB.key);
+const inTG=()=>{try{return !!(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)}catch(e){return false}};
+const accSaveLS=()=>{try{ACC?localStorage.setItem(AKEY,JSON.stringify(ACC)):localStorage.removeItem(AKEY)}catch(e){}};
+const accName=()=>ACC?String(ACC.name||'').replace(FAKE,''):'';
+function accErr(e){
+  const m=String((e&&(e.message))||e||'');
+  if(/Invalid login/i.test(m))return 'Неверный логин или пароль';
+  if(/already registered|already been registered/i.test(m))return 'Такой логин уже занят';
+  if(/at least 6|weak/i.test(m))return 'Пароль слишком короткий: нужно минимум 6 символов';
+  if(/valid email|invalid format|email_address_invalid/i.test(m))return 'Логин или почта указаны неверно';
+  if(/rate|too many/i.test(m))return 'Слишком много попыток, подождите минуту';
+  if(/Failed to fetch|NetworkError|Load failed/i.test(m))return 'Нет связи с сервером';
+  return 'Не получилось: '+m.slice(0,80);
+}
+async function sbf(path,opt,auth){
+  opt=opt||{};
+  const h=Object.assign({apikey:SB.key,'Content-Type':'application/json'},opt.headers||{});
+  if(auth&&ACC)h.Authorization='Bearer '+ACC.at;
+  const r=await fetch(SB.url+path,Object.assign({},opt,{headers:h}));
+  let j=null;try{j=await r.json()}catch(e){}
+  if(!r.ok)throw Object.assign(new Error((j&&(j.msg||j.error_description||j.message))||('HTTP '+r.status)),{status:r.status});
+  return j;
+}
+function accSet(t){
+  ACC={at:t.access_token,rt:t.refresh_token,exp:Date.now()+(+t.expires_in||3600)*1000,uid:(t.user&&t.user.id)||(ACC&&ACC.uid)||'',name:(t.user&&t.user.email)||(ACC&&ACC.name)||''};
+  accSaveLS();
+}
+async function accFresh(){
+  if(!ACC)return false;
+  if(ACC.exp-Date.now()>60000)return true;
+  try{accSet(await sbf('/auth/v1/token?grant_type=refresh_token',{method:'POST',body:JSON.stringify({refresh_token:ACC.rt})}));return true}
+  catch(e){if(e.status===400||e.status===401){ACC=null;accSaveLS();accNote='Сессия закончилась, войдите снова';renderAcc()}return false}
+}
+function toEmail(v){v=String(v).trim();if(v.includes('@'))return v.toLowerCase();if(!/^[a-zA-Z0-9_.-]{3,20}$/.test(v))return null;return v.toLowerCase()+FAKE}
+async function accPushNow(){
+  if(!sbOn()||!ACC||!(await accFresh()))return;
+  try{await sbf('/rest/v1/saves?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:ACC.uid,ts:S.ts||Date.now(),data:snap()})},true)}catch(e){}
+}
+function accPush(){
+  if(!sbOn()||!ACC)return;
+  clearTimeout(accT);accT=setTimeout(accPushNow,4000);
+}
+async function accPull(){
+  if(!sbOn()||!ACC||!(await accFresh()))return;
+  try{
+    const rows=await sbf('/rest/v1/saves?select=data,ts&user_id=eq.'+encodeURIComponent(ACC.uid),{},true);
+    const row=rows&&rows[0];
+    if(!row){if(S.spins)accPushNow();return}
+    const T=+row.ts||0;
+    if(T>(S.ts||0)&&!busy){
+      const o=parseState(row.data);
+      if(o){S=o;try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}CURLW=lwFor(luckEff());ensureDay();renderAll();toIdle();msg('Прогресс загружен из аккаунта')}
+    }else if(T<(S.ts||0))accPushNow();
+  }catch(e){}
+}
+async function accAuth(mode,login,pass){
+  const em=toEmail(login);
+  if(!em){accNote='Логин: от 3 до 20 латинских букв, цифр или знаков _ . - Либо укажите почту';renderAcc();return}
+  if(String(pass).length<6){accNote='Пароль: минимум 6 символов';renderAcc();return}
+  accBusy=true;accNote='';renderAcc();
+  try{
+    if(mode==='up'){
+      const j=await sbf('/auth/v1/signup',{method:'POST',body:JSON.stringify({email:em,password:pass})});
+      if(j&&j.access_token)accSet(j);else accNote='Проверьте почту: подтвердите адрес, потом войдите.';
+    }else accSet(await sbf('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email:em,password:pass})}));
+    if(ACC){accNote='';await accPull();if(ACC&&mode==='up')accPushNow()}
+  }catch(e){accNote=accErr(e)}
+  accBusy=false;renderAcc();
+}
+function accGoogle(){
+  if(!sbOn())return;
+  location.href=SB.url+'/auth/v1/authorize?provider=google&redirect_to='+encodeURIComponent(location.origin+location.pathname);
+}
+function accOut(){clearTimeout(accT);ACC=null;accSaveLS();accNote='Вы вышли. Прогресс остаётся на этом устройстве.';renderAcc()}
+let accL='';
+function renderAcc(){
+  const el=$('accBox');if(!el)return;
+  if($('accLogin'))accL=$('accLogin').value;
+  if(!sbOn()){el.innerHTML='<p class="muted">Аккаунты пока не подключены к серверу.</p>';return}
+  const note=accNote?'<p class="note small" role="status">'+accNote+'</p>':'';
+  if(ACC){
+    el.innerHTML='<p>Вы вошли: <b>'+accName()+'</b></p><p class="muted">Прогресс всех режимов сохраняется в аккаунте и подтягивается на других устройствах.</p>'
+      +'<div class="toggles"><button class="tog" type="button" data-acc="sync"'+(accBusy?' disabled':'')+'>Синхронизировать</button><button class="tog" type="button" data-acc="out">Выйти</button></div>'+note;
+    return;
+  }
+  el.innerHTML='<input class="accin" id="accLogin" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Логин или почта" value="'+accL.replace(/[&<>\"]/g,'')+'">'
+    +'<input class="accin" id="accPass" type="password" autocomplete="current-password" placeholder="Пароль (от 6 символов)">'
+    +'<div class="toggles"><button class="tog" type="button" data-acc="in"'+(accBusy?' disabled':'')+'>Войти</button><button class="tog" type="button" data-acc="up"'+(accBusy?' disabled':'')+'>Регистрация</button>'
+    +(inTG()?'':'<button class="tog" type="button" data-acc="google">Войти через Google</button>')+'</div>'
+    +(inTG()?'<p class="muted">Вход через Google работает только в браузере. В Telegram входите по логину и паролю.</p>':'')+note;
+}
+async function accInit(){
+  renderAcc();
+  if(!sbOn())return;
+  const h=location.hash;
+  if(/access_token=|error_description=/.test(h)){
+    const q=new URLSearchParams(h.slice(1));
+    try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+    if(q.get('access_token')){
+      try{
+        const at=q.get('access_token'),u=await sbf('/auth/v1/user',{headers:{Authorization:'Bearer '+at}});
+        accSet({access_token:at,refresh_token:q.get('refresh_token')||'',expires_in:q.get('expires_in'),user:u});
+        accNote='Вы вошли через Google';
+      }catch(e){accNote=accErr(e)}
+    }else accNote='Вход через Google не удался';
+    renderAcc();
+  }
+  accPull();
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-acc]');if(!b)return;
+  const a=b.dataset.acc;
+  if(a==='in'||a==='up')accAuth(a,($('accLogin')||{}).value||'',($('accPass')||{}).value||'');
+  else if(a==='google')accGoogle();
+  else if(a==='out')accOut();
+  else if(a==='sync'){accBusy=true;renderAcc();accPull().then(()=>{accBusy=false;accNote='Готово';renderAcc()})}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='accPass')accAuth('in',($('accLogin')||{}).value||'',e.target.value)});
+function save(){S.ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}cloudPush();accPush()}
 
 function renderBatch(){
   const o=MULTI.slice(0,S.up.multi+1),aff=Math.max(1,Math.floor(S.bal/SPIN_COST));
@@ -921,10 +1052,10 @@ function nextLucky(){
   return 'завтра в '+luckyHourOf(dn+1)+':00';
 }
 function renderEvents(){
-  const b=dayBank(),lk=isLucky();
-  $('events').innerHTML='<span class="on">Банк дня: '+b.n+' (продажа ×2)</span><span class="on">Страна дня: '+dayCountry().n+' (×2)</span><span class="on">Оператор дня: '+dayCarrier().n+' (×2)</span><span class="on">Регион дня: '+dayRegion().n+' (×2)</span>'
-    +(lk?'<span class="on">Час удачи идёт: удача +3 ранга</span>':'<span>Час удачи '+nextLucky()+'</span>');
+  const b=dayBank();
+  $('events').innerHTML='<span class="on">Банк дня: '+b.n+' (продажа ×2)</span><span class="on">Страна дня: '+dayCountry().n+' (×2)</span><span class="on">Оператор дня: '+dayCarrier().n+' (×2)</span><span class="on">Регион дня: '+dayRegion().n+' (×2)</span><span id="evT">'+evLeft()+'</span>';
 }
+function evLeft(){const l=300-Math.floor((Date.now()%300000)/1000);return 'Смена через '+Math.floor(l/60)+':'+String(l%60).padStart(2,'0')}
 let autoOn=false,autoT=0;
 function renderAuto(){
   const b=$('auto'),r=S.up.auto;
@@ -958,10 +1089,10 @@ function renderGoals(){
   document.querySelectorAll('[data-gt]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.gt===goalTab)));
   let h='';
   if(goalTab===0){
-    const d=dailyInfo(),lk=isLucky();
+    const d=dailyInfo();
     h+='<div class="glist"><div class="gi"><p class="gt">Ежедневный бонус</p><p class="muted">Заходите каждый день: серия растёт до 7 дней, награда вместе с ней. Серия: <b>'+S.daily.streak+'</b>.</p>'
       +'<button class="buy" type="button" data-daily="1"'+(d.can?'':' disabled')+'>'+(d.can?'Забрать · '+fmtB(d.rw)+' (день '+d.st+')':'Сегодня уже забрали')+'</button></div>'
-      +'<div class="gi"><p class="gt">События</p><p>Банк дня: <b>'+dayBank().f+'</b>. Карты этого банка сегодня продаются в 2 раза дороже. Страна дня: <b>'+dayCountry().f+'</b>, её паспорта тоже вдвое дороже. Оператор дня: <b>'+dayCarrier().f+'</b> и регион дня: <b>'+dayRegion().f+'</b>, их SIM-карты и автономера тоже вдвое дороже.</p><p>Час удачи: '+(lk?'<b>идёт прямо сейчас</b>, удача +3 ранга.':nextLucky()+', удача +3 ранга на час.')+'</p></div>';
+      +'<div class="gi"><p class="gt">События</p><p>Банк дня: <b>'+dayBank().f+'</b>. Карты этого банка сейчас продаются в 2 раза дороже (события меняются каждые 5 минут). Страна дня: <b>'+dayCountry().f+'</b>, её паспорта тоже вдвое дороже. Оператор дня: <b>'+dayCarrier().f+'</b> и регион дня: <b>'+dayRegion().f+'</b>, их SIM-карты и автономера тоже вдвое дороже.</p></div>';
     h+=qList().map(q=>{const done=S.q.done.includes(q.id),ok=q.v>=q.g;
       return '<div class="gi'+(done?' done':'')+'"><p class="gt">'+q.t+'</p>'+barHTML(q.v,q.g)+'<p class="muted">'+Math.min(q.v,q.g)+' из '+q.g+'</p>'
         +'<button class="buy" type="button" data-q="'+q.id+'"'+(ok&&!done?'':' disabled')+'>'+(done?'Награда получена':ok?'Забрать · '+fmtB(qReward()):'Награда '+fmtB(qReward()))+'</button></div>'}).join('')+'</div>';
@@ -1429,6 +1560,12 @@ document.addEventListener('click',e=>{
   const t=document.getElementById(b.dataset.tip);if(!t)return;
   const open=t.hidden;t.hidden=!open;b.setAttribute('aria-expanded',String(open));
 });
+accInit();
+let lastSlot=slotNum();
+setInterval(()=>{
+  if(slotNum()!==lastSlot){lastSlot=slotNum();renderEvents();renderInv();if(!$('ovGoals').hidden)renderGoals()}
+  else{const t=$('evT');if(t)t.textContent=evLeft()}
+},1000);
 addEventListener('pagehide',save);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)save()});
 })();
