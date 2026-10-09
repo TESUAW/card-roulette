@@ -138,6 +138,7 @@ p{margin:0}
 .spin:disabled{opacity:.55;cursor:default}
 .toggles{display:flex;flex-wrap:wrap;gap:8px}
 .accbox{display:grid;gap:8px}
+.pid{font-variant-numeric:tabular-nums;letter-spacing:.08em}
 .accin{font:inherit;padding:12px 14px;border-radius:12px;border:1px solid var(--line,rgba(255,255,255,.25));background:rgba(0,0,0,.25);color:inherit;width:100%;box-sizing:border-box}
 .tog{font:500 13px var(--f-body);color:var(--muted);background:transparent;border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer}
 .tog[aria-pressed="true"]{color:var(--ink);border-color:rgba(243,236,218,.6)}
@@ -421,6 +422,7 @@ textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);
     <h2 class="g">Аккаунт <button class="inf" type="button" data-tip="t_acc" aria-expanded="false" aria-label="Пояснение">!</button></h2>
     <p class="tip" id="t_acc" hidden>Войдите, чтобы прогресс всех режимов хранился на сервере и был на любом устройстве. Можно указать почту или придуманный логин. По логину пароль восстановить нельзя, запомните его. Если на двух устройствах разный прогресс, загрузится тот, который сохранялся позже.</p>
     <div id="accBox" class="accbox"></div>
+    <div id="devBox" class="accbox" hidden></div>
 
     <h2 class="g">Новый банк <button class="inf" type="button" data-tip="t_pr" aria-expanded="false" aria-label="Пояснение">!</button></h2>
     <p class="tip" id="t_pr" hidden>Когда рост замедлится, откройте новый банк: монеты, коллекция и улучшения магазина обнулятся, зато вы получите акции. Каждая акция навсегда добавляет 25% к цене продажи. Ранг игрока, счётчик круток и лучшая карта остаются.</p>
@@ -805,7 +807,8 @@ let S=fresh();
 try{S=parseState(JSON.parse(localStorage.getItem(KEY)||'null'))||parseState(JSON.parse(localStorage.getItem(OLD_KEY)||'null'))||S}catch(e){}
 const achLuck=()=>ACH.reduce((a,x)=>a+(S.ach[x[0]]?x[6]:0),0);
 /* события: банк, страна, оператор и регион дня меняются каждые 5 минут */
-const slotNum=()=>Math.floor(Date.now()/300000);
+let evShift=0,devForce=null;
+const slotNum=()=>Math.floor(Date.now()/300000)+evShift;
 const dayBank=()=>BANKS[(slotNum()*11+3)%BANKS.length];
 const dayCountry=()=>COUNTRIES[(slotNum()*5+2)%COUNTRIES.length];
 const luckyHourOf=dn=>(dn*7+5)%24;
@@ -874,6 +877,7 @@ let accT=0,accBusy=false,accNote='';
 const sbOn=()=>!!(SB.url&&SB.key);
 const inTG=()=>{try{return !!(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)}catch(e){return false}};
 const accSaveLS=()=>{try{ACC?localStorage.setItem(AKEY,JSON.stringify(ACC)):localStorage.removeItem(AKEY)}catch(e){}};
+const accId=()=>isDev()?'000000':(ACC&&ACC.pid!=null?String(ACC.pid).padStart(6,'0'):'······');
 const accName=()=>ACC?String(ACC.name||'').replace(FAKE,''):'';
 function accErr(e){
   const m=String((e&&(e.message))||e||'');
@@ -881,6 +885,7 @@ function accErr(e){
   if(/already registered|already been registered/i.test(m))return 'Такой логин уже занят';
   if(/at least 6|weak/i.test(m))return 'Пароль слишком короткий: нужно минимум 6 символов';
   if(/valid email|invalid format|email_address_invalid/i.test(m))return 'Логин или почта указаны неверно';
+  if(/Database error|reserved/i.test(m))return 'Этот логин нельзя использовать';
   if(/rate|too many/i.test(m))return 'Слишком много попыток, подождите минуту';
   if(/Failed to fetch|NetworkError|Load failed/i.test(m))return 'Нет связи с сервером';
   return 'Не получилось: '+m.slice(0,80);
@@ -895,7 +900,8 @@ async function sbf(path,opt,auth){
   return j;
 }
 function accSet(t){
-  ACC={at:t.access_token,rt:t.refresh_token,exp:Date.now()+(+t.expires_in||3600)*1000,uid:(t.user&&t.user.id)||(ACC&&ACC.uid)||'',name:(t.user&&t.user.email)||(ACC&&ACC.name)||''};
+  const uid=(t.user&&t.user.id)||(ACC&&ACC.uid)||'';
+  ACC={at:t.access_token,rt:t.refresh_token,exp:Date.now()+(+t.expires_in||3600)*1000,uid,name:(t.user&&t.user.email)||(ACC&&ACC.name)||'',pid:(ACC&&ACC.uid===uid)?ACC.pid:undefined};
   accSaveLS();
 }
 async function accFresh(){
@@ -907,7 +913,10 @@ async function accFresh(){
 function toEmail(v){v=String(v).trim();if(v.includes('@'))return v.toLowerCase();if(!/^[a-zA-Z0-9_.-]{3,20}$/.test(v))return null;return v.toLowerCase()+FAKE}
 async function accPushNow(){
   if(!sbOn()||!ACC||!(await accFresh()))return;
-  try{await sbf('/rest/v1/saves?on_conflict=user_id',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify({user_id:ACC.uid,ts:S.ts||Date.now(),data:snap()})},true)}catch(e){}
+  try{
+    const j=await sbf('/rest/v1/saves?on_conflict=user_id&select=pid',{method:'POST',headers:{Prefer:'resolution=merge-duplicates,return=representation'},body:JSON.stringify({user_id:ACC.uid,ts:S.ts||Date.now(),data:snap()})},true);
+    if(ACC&&j&&j[0]&&j[0].pid!=null&&ACC.pid!==j[0].pid){ACC.pid=j[0].pid;accSaveLS();renderAcc()}
+  }catch(e){}
 }
 function accPush(){
   if(!sbOn()||!ACC)return;
@@ -916,15 +925,45 @@ function accPush(){
 async function accPull(){
   if(!sbOn()||!ACC||!(await accFresh()))return;
   try{
-    const rows=await sbf('/rest/v1/saves?select=data,ts&user_id=eq.'+encodeURIComponent(ACC.uid),{},true);
+    const rows=await sbf('/rest/v1/saves?select=data,ts,pid&user_id=eq.'+encodeURIComponent(ACC.uid),{},true);
     const row=rows&&rows[0];
-    if(!row){if(S.spins)accPushNow();return}
+    if(row&&row.pid!=null&&ACC.pid!==row.pid){ACC.pid=row.pid;accSaveLS();renderAcc()}
+    if(!row){accPushNow();return}
     const T=+row.ts||0;
     if(T>(S.ts||0)&&!busy){
       const o=parseState(row.data);
       if(o){S=o;try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}CURLW=lwFor(luckEff());ensureDay();renderAll();toIdle();msg('Прогресс загружен из аккаунта')}
     }else if(T<(S.ts||0))accPushNow();
   }catch(e){}
+}
+/* подарки от разработчика: приходят по ID игрока */
+const GKEY='ruletka-gifts-done';
+let gDone=[];try{gDone=JSON.parse(localStorage.getItem(GKEY)||'[]')}catch(e){}
+async function giftsPoll(){
+  if(!sbOn()||!ACC||busy||!(await accFresh()))return;
+  let rows;
+  try{rows=await sbf('/rest/v1/gifts?select=id,kind,amount,lv,game&claimed=eq.false&order=id.asc&limit=20',{},true)}catch(e){return}
+  if(!rows||!rows.length)return;
+  const msgs=[];
+  for(const g of rows){
+    if(!gDone.includes(g.id)){
+      const gm=TYPES.includes(g.game)?g.game:'card';
+      const T=gm===S.game?S:(S.saves[gm]=S.saves[gm]||freshSub());
+      if(g.kind==='coins'){
+        const n=Math.max(0,Math.min(1e15,Math.floor(+g.amount||0)));T.bal+=n;msgs.push('+'+fmtB(n)+' монет, режим «'+GAMES[gm].b+'»');
+      }else if(g.kind==='item'){
+        const c=MAKERS[gm](Math.max(0,Math.min(NLV-1,Math.floor(+g.lv||0))));
+        if(T.inv.length<capFor(T.up.cap)){
+          T.inv.unshift(ser(c));if(!T.banks.includes(c.b.id))T.banks.push(c.b.id);
+          if(!T.best||de(T.best).price<c.price)T.best=ser(c);
+          msgs.push(c.name+', режим «'+GAMES[gm].b+'»');
+        }else{T.bal+=c.price;msgs.push('коллекция полна, вместо вещи '+fmtB(c.price)+' монет')}
+      }
+      gDone.push(g.id);gDone=gDone.slice(-200);try{localStorage.setItem(GKEY,JSON.stringify(gDone))}catch(e){}
+    }
+    try{await sbf('/rest/v1/gifts?id=eq.'+g.id,{method:'PATCH',headers:{Prefer:'return=minimal'},body:JSON.stringify({claimed:true})},true)}catch(e){}
+  }
+  if(msgs.length){save();renderAll();msg('Подарок от разработчика: '+msgs.join('; '))}
 }
 async function accAuth(mode,login,pass){
   const em=toEmail(login);
@@ -936,7 +975,7 @@ async function accAuth(mode,login,pass){
       const j=await sbf('/auth/v1/signup',{method:'POST',body:JSON.stringify({email:em,password:pass})});
       if(j&&j.access_token)accSet(j);else accNote='Проверьте почту: подтвердите адрес, потом войдите.';
     }else accSet(await sbf('/auth/v1/token?grant_type=password',{method:'POST',body:JSON.stringify({email:em,password:pass})}));
-    if(ACC){accNote='';await accPull();if(ACC&&mode==='up')accPushNow()}
+    if(ACC){accNote='';await accPull();if(ACC&&mode==='up')await accPushNow();giftsPoll()}
   }catch(e){accNote=accErr(e)}
   accBusy=false;renderAcc();
 }
@@ -952,16 +991,64 @@ function renderAcc(){
   if(!sbOn()){el.innerHTML='<p class="muted">Аккаунты пока не подключены к серверу.</p>';return}
   const note=accNote?'<p class="note small" role="status">'+accNote+'</p>':'';
   if(ACC){
-    el.innerHTML='<p>Вы вошли: <b>'+accName()+'</b></p><p class="muted">Прогресс всех режимов сохраняется в аккаунте и подтягивается на других устройствах.</p>'
+    el.innerHTML='<p>Вы вошли: <b>'+accName()+'</b></p><p>Ваш ID: <b class="pid">'+accId()+'</b>'+(isDev()?' (разработчик)':'')+'</p><p class="muted">Прогресс всех режимов сохраняется в аккаунте и подтягивается на других устройствах.</p>'
       +'<div class="toggles"><button class="tog" type="button" data-acc="sync"'+(accBusy?' disabled':'')+'>Синхронизировать</button><button class="tog" type="button" data-acc="out">Выйти</button></div>'+note;
-    return;
+    renderDev();return;
   }
+  if(!ACC)renderDev();
   el.innerHTML='<input class="accin" id="accLogin" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="Логин или почта" value="'+accL.replace(/[&<>\"]/g,'')+'">'
     +'<input class="accin" id="accPass" type="password" autocomplete="current-password" placeholder="Пароль (от 6 символов)">'
     +'<div class="toggles"><button class="tog" type="button" data-acc="in"'+(accBusy?' disabled':'')+'>Войти</button><button class="tog" type="button" data-acc="up"'+(accBusy?' disabled':'')+'>Регистрация</button>'
     +(inTG()?'':'<button class="tog" type="button" data-acc="google">Войти через Google</button>')+'</div>'
     +(inTG()?'<p class="muted">Вход через Google работает только в браузере. В Telegram входите по логину и паролю.</p>':'')+note;
 }
+/* ---------- режим разработчика: только для аккаунта из списка ---------- */
+const DEV_LOGINS=['dev'];
+const isDev=()=>!!ACC&&DEV_LOGINS.includes(accName().toLowerCase());
+function devSay(t){const n=$('devNote');if(n)n.textContent=t}
+function renderDev(){
+  const el=$('devBox');if(!el)return;
+  if(!isDev()){el.hidden=true;el.innerHTML='';return}
+  el.hidden=false;
+  const keep=$('devLv')?$('devLv').value:'8';
+  el.innerHTML='<h2 class="g">Разработчик</h2><p class="muted">Эти кнопки работают только в вашем аккаунте и меняют текущий режим игры.</p>'
+    +'<div class="toggles"><button class="tog" type="button" data-dev="m1">+1 млн</button><button class="tog" type="button" data-dev="m2">+1 млрд</button><button class="tog" type="button" data-dev="m3">+1 трлн</button><button class="tog" type="button" data-dev="ranks">Все ранги на максимум</button><button class="tog" type="button" data-dev="ev">Сменить события</button></div>'
+    +'<label class="vol">Ступень <select id="devLv" class="accin">'+LV.map((l,i)=>'<option value="'+i+'"'+(String(i)===keep?' selected':'')+'>'+(i+1)+'. '+l.name+'</option>').join('')+'</select></label>'
+    +'<div class="toggles"><button class="tog" type="button" data-dev="give">Выдать вещь</button><button class="tog" type="button" data-dev="fx">Показать эффект</button><button class="tog" type="button" data-dev="force">Крутки: только эта ступень</button><button class="tog" type="button" data-dev="unforce">Обычные шансы</button></div>'
+    +'<h2 class="g">Подарок игроку по ID</h2>'
+    +'<input class="accin" id="devPid" inputmode="numeric" placeholder="ID игрока, например 7">'
+    +'<label class="vol">Режим <select id="devGame" class="accin">'+TYPES.map(g=>'<option value="'+g+'">'+GAMES[g].b+'</option>').join('')+'</select></label>'
+    +'<input class="accin" id="devAmt" inputmode="numeric" placeholder="Сумма монет" value="1000000">'
+    +'<div class="toggles"><button class="tog" type="button" data-dev="gcoins">Отправить монеты</button><button class="tog" type="button" data-dev="gitem">Отправить вещь (ступень выше)</button></div>'
+    +'<p class="note small" id="devNote" role="status">'+(devForce!=null?'Сейчас все крутки дают ступень '+(devForce+1)+'.':'')+'</p>';
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-dev]');if(!b||!isDev())return;
+  const a=b.dataset.dev,lv=+(($('devLv')||{}).value||0);
+  if(a==='m1'||a==='m2'||a==='m3'){S.bal+=({m1:1e6,m2:1e9,m3:1e12})[a];save();renderAll();devSay('Монеты добавлены')}
+  else if(a==='ranks'){TRK.forEach(id=>{S.up[id]=MAXR});S.prof=MAXR;save();renderAll();devSay('Все ранги на максимуме')}
+  else if(a==='ev'){evShift++;renderEvents();renderInv();devSay('События сменились')}
+  else if(a==='give'){
+    if(S.inv.length>=curCap()){devSay('Коллекция полна');return}
+    const c=MAKERS[S.game](lv);S.inv.unshift(ser(c));
+    if(!S.banks.includes(c.b.id))S.banks.push(c.b.id);
+    if(!S.best||de(S.best).price<c.price)S.best=ser(c);
+    save();renderAll();devSay('Выдано: '+c.name+', '+fmtP(c.price)+' монет')}
+  else if(a==='force'){devForce=lv;devSay('Все крутки дают ступень '+(lv+1)+' до выключения')}
+  else if(a==='unforce'){devForce=null;devSay('Шансы обычные')}
+  else if(a==='gcoins'||a==='gitem'){
+    (async()=>{
+      const pid=parseInt(($('devPid')||{}).value,10);
+      if(!(pid>=0)){devSay('Укажите ID игрока');return}
+      const body={to_pid:pid,kind:a==='gcoins'?'coins':'item',game:$('devGame').value};
+      if(a==='gcoins'){const n=Math.floor(+$('devAmt').value);if(!(n>0)){devSay('Укажите сумму');return}body.amount=n}else body.lv=lv;
+      await accFresh();
+      try{await sbf('/rest/v1/gifts',{method:'POST',headers:{Prefer:'return=minimal'},body:JSON.stringify(body)},true);devSay('Отправлено игроку '+String(pid).padStart(6,'0')+'. Он получит подарок в течение минуты.')}
+      catch(e){devSay(accErr(e))}
+    })();
+  }
+  else if(a==='fx'){const c=MAKERS[S.game](lv);closeOv();setTimeout(()=>{fan(c.lv);confetti(c.lv,c.tier);epic(c)},250)}
+});
 async function accInit(){
   renderAcc();
   if(!sbOn())return;
@@ -978,7 +1065,8 @@ async function accInit(){
     }else accNote='Вход через Google не удался';
     renderAcc();
   }
-  accPull();
+  accPull().then(giftsPoll);
+  setInterval(giftsPoll,45000);
 }
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-acc]');if(!b)return;
@@ -986,7 +1074,7 @@ document.addEventListener('click',e=>{
   if(a==='in'||a==='up')accAuth(a,($('accLogin')||{}).value||'',($('accPass')||{}).value||'');
   else if(a==='google')accGoogle();
   else if(a==='out')accOut();
-  else if(a==='sync'){accBusy=true;renderAcc();accPull().then(()=>{accBusy=false;accNote='Готово';renderAcc()})}
+  else if(a==='sync'){accBusy=true;renderAcc();accPull().then(giftsPoll).then(()=>{accBusy=false;accNote='Готово';renderAcc()})}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target&&e.target.id==='accPass')accAuth('in',($('accLogin')||{}).value||'',e.target.value)});
 function save(){S.ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}cloudPush();accPush()}
@@ -1438,7 +1526,7 @@ function spin(){
   busy=true;
   S.bal-=cost;CURLW=lwFor(luckEff());save();renderStats();updateSpin();
   ensureAudio();
-  const cards=Array.from({length:N},()=>MAKERS[S.game](pickW(CURLW)));
+  const cards=Array.from({length:N},()=>MAKERS[S.game](devForce!=null?devForce:pickW(CURLW)));
   const card=cards.reduce((a,b)=>(b.price>a.price||(b.price===a.price&&b.lv>a.lv))?b:a);
   const fast=S.up.speed>=1&&$('fast').getAttribute('aria-pressed')==='true';
   const k=reduce?.1:(fast?.28:(N>1?.5:1))*speedK(S.up.speed);
