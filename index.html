@@ -165,6 +165,75 @@ header{padding-right:56px}
 .vol input{flex:1;max-width:260px;accent-color:#f3ecda}
 .vol output{min-width:3.2em;color:var(--ink);font-variant-numeric:tabular-nums}
 
+/* ---------- events, goals, album ---------- */
+.gamebar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.secbar{margin:22px 0 4px}
+[data-sec][hidden]{display:none}
+.gamebar .tog{padding:10px 14px;font-weight:700}
+.gamebar .tog[aria-pressed="true"]{background:var(--ink);color:var(--felt);border-color:var(--ink)}
+.bn small{font:500 .62em var(--f-body);letter-spacing:.14em;text-transform:uppercase;opacity:.75;margin-left:.5em}
+.pass .num{font-size:9.4cqw}
+.sim .num{font-size:8.2cqw}.plate .num{font-size:11.5cqw}
+.num .pre{margin-right:.4em;opacity:.85}.num .g.nm{margin-right:0}.num .sp{margin:0 .25em}
+.sim .chip{clip-path:polygon(0 0,70% 0,100% 30%,100% 100%,0 100%)}
+.plate .chip{width:14cqw;height:6.5cqw;border-radius:1cqw;box-shadow:none;background:linear-gradient(#fff 0 33%,#1c4fd8 33% 66%,#d52b1e 66%);opacity:.9}
+.live.tense{animation:tense .45s ease-in-out infinite alternate}
+.live.tx3{--tc:var(--t3)}.live.tx4{--tc:var(--t4)}.live.tx5{--tc:var(--t5)}
+@keyframes tense{from{box-shadow:0 0 0 0 transparent}to{box-shadow:0 0 34px 8px var(--tc)}}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}
+#fx .flash{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,var(--c),transparent 70%);opacity:0;animation:fxf .9s ease-out forwards}
+#fx .rays{position:absolute;left:50%;top:40%;width:170vmax;height:170vmax;margin:-85vmax 0 0 -85vmax;background:repeating-conic-gradient(var(--c) 0 6deg,transparent 6deg 24deg);-webkit-mask:radial-gradient(circle,#000 0,transparent 60%);mask:radial-gradient(circle,#000 0,transparent 60%);opacity:0;animation:fxr 2.6s ease-out forwards}
+@keyframes fxf{0%{opacity:0}15%{opacity:.75}100%{opacity:0}}
+@keyframes fxr{0%{opacity:0;transform:rotate(0) scale(.4)}15%{opacity:.5}100%{opacity:0;transform:rotate(60deg) scale(1)}}
+#fx .dim{position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,transparent 15%,rgba(0,0,0,.72));opacity:0;animation:dimk 3s ease-out forwards}
+@keyframes dimk{0%{opacity:0}12%{opacity:1}75%{opacity:.8}100%{opacity:0}}
+#fx .flash.w{background:#fff;animation:fxw .22s ease-out forwards}
+@keyframes fxw{0%{opacity:0}20%{opacity:.85}100%{opacity:0}}
+#fx .ring{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border:5px solid var(--c);border-radius:50%;box-shadow:0 0 24px var(--c),inset 0 0 18px var(--c);opacity:0;animation:ringk 1.2s ease-out forwards}
+@keyframes ringk{0%{opacity:.95;transform:scale(.3)}100%{opacity:0;transform:scale(48)}}
+#fx .rays.r2{animation-duration:3.4s;animation-direction:reverse;filter:blur(2px);background:repeating-conic-gradient(var(--c) 0 3deg,transparent 3deg 15deg)}
+#fx .edge{position:absolute;inset:0;box-shadow:inset 0 0 100px 14px var(--c);opacity:.2;animation:edgek .42s ease-in-out infinite alternate}
+@keyframes edgek{from{opacity:.15}to{opacity:.85}}
+#banner b span{display:inline-block;animation:ltr .75s cubic-bezier(.2,1.7,.4,1) both;animation-delay:calc(var(--i)*60ms)}
+@keyframes ltr{from{opacity:0;transform:translateY(-80px) scale(2.6) rotate(-14deg);filter:blur(10px)}to{opacity:1;transform:none;filter:none}}
+#banner.rb b{animation:bout 3s forwards,hue 1.2s linear infinite}
+@keyframes hue{to{filter:hue-rotate(360deg)}}
+@keyframes bout{0%,75%{opacity:1}100%{opacity:0}}
+.live.pop{animation:popk .8s cubic-bezier(.2,1.8,.4,1)}
+@keyframes popk{0%{transform:scale(1)}30%{transform:scale(1.14) rotate(-1.5deg);filter:brightness(1.6)}100%{transform:scale(1)}}
+.live.aura{animation:aura 1s ease-in-out infinite alternate}
+@keyframes aura{from{box-shadow:0 0 14px 2px var(--tc)}to{box-shadow:0 0 46px 14px var(--tc)}}
+.stage.zoom{animation:zmk 2.4s ease-out}
+@keyframes zmk{0%{transform:scale(1)}15%{transform:scale(1.045)}100%{transform:scale(1)}}
+.shake.shake2{animation:shk2 1s linear}
+@keyframes shk2{0%,100%{transform:none}8%{transform:translate(-12px,6px)}16%{transform:translate(11px,-8px)}24%{transform:translate(-9px,-4px)}32%{transform:translate(9px,6px)}40%{transform:translate(-7px,3px)}50%{transform:translate(6px,-3px)}65%{transform:translate(-4px,2px)}80%{transform:translate(2px,-1px)}}
+#banner{position:fixed;left:0;right:0;top:26%;text-align:center;z-index:71;pointer-events:none;padding:0 16px}
+#banner b{display:block;font:800 clamp(30px,10vw,58px)/1.05 var(--f-body);letter-spacing:.04em;color:var(--c);text-shadow:0 0 18px var(--c),0 3px 0 rgba(0,0,0,.55);animation:bnr 2.3s ease-out forwards}
+#banner small{display:block;margin-top:8px;font:600 16px var(--f-body);color:#fff;text-shadow:0 2px 6px #000;animation:bnr 2.3s ease-out forwards}
+@keyframes bnr{0%{transform:scale(.3);opacity:0}12%{transform:scale(1.15);opacity:1}22%{transform:scale(1)}80%{opacity:1}100%{transform:scale(1.06);opacity:0}}
+.shake{animation:shk .5s linear}
+@keyframes shk{0%,100%{transform:none}15%{transform:translate(-7px,3px)}30%{transform:translate(6px,-4px)}45%{transform:translate(-5px,-2px)}60%{transform:translate(5px,3px)}75%{transform:translate(-3px,2px)}}
+@media (prefers-reduced-motion:reduce){.live.tense,.live.aura,.live.pop,.shake,.stage.zoom{animation:none}}
+.pass .chip{width:11.5cqw;height:11.5cqw;border-radius:50%;box-shadow:none;border:.7cqw solid currentColor;opacity:.8;background:radial-gradient(circle,currentColor 0 12%,transparent 14% 38%,currentColor 40% 44%,transparent 46%)}
+.fab.left{right:auto;left:16px}
+.events{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.events span{font-size:13px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.events span.on{border-color:var(--t5);color:var(--t5)}
+.two{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:6px}
+.sell-sm:disabled{opacity:.55;cursor:default}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.glist{display:grid;gap:10px}
+.gi{display:grid;gap:8px;padding:12px 14px;border:1px solid var(--line);border-radius:10px;background:var(--panel)}
+.gi p{margin:0;font-size:14px}
+.gi .gt{font:700 14px var(--f-display)}
+.gi.done{opacity:.6}
+.bar{height:6px;border-radius:3px;background:rgba(243,236,218,.12);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--t1)}
+.alb{display:flex;gap:4px;align-items:center}
+.alb i{display:block;width:20px;height:10px;border-radius:2px;background:rgba(243,236,218,.12)}
+.arow{display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:12px;align-items:center;padding:8px 12px;border:1px solid var(--line);border-radius:8px;background:var(--panel);font-size:14px}
+.arow.full{border-color:var(--t5)}
+
 /* ---------- info buttons ---------- */
 .inf{display:inline-grid;place-items:center;width:26px;height:26px;margin-left:10px;padding:0;border-radius:50%;border:1.5px solid var(--muted);background:transparent;color:var(--muted);font:700 14px/1 var(--f-body);letter-spacing:0;text-transform:none;vertical-align:middle;cursor:pointer}
 h1 .inf{font-size:15px;width:28px;height:28px}
@@ -230,8 +299,10 @@ textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);
 <main class="app">
   <header>
     <h1>Рулетка номеров карт <button class="inf" type="button" data-tip="t_lead" aria-expanded="false" aria-label="Как играть">!</button></h1>
-    <p class="lead tip" id="t_lead" hidden>Нажмите «Крутить»: цифры номера начнут сменяться и остановятся одна за другой. Каждая лишняя одинаковая цифра подряд поднимает карту на ступень выше: от обычной до легендарной, всего 15 ступеней. К цене добавляется надбавка банка. Кнопка «Магазин» справа внизу открывает улучшения: удача, скорость, пачки, налог. Домик справа вверху открывает профиль: ранг игрока и звук. Прогресс сохраняется сам в этом браузере.</p>
+    <p class="lead tip" id="t_lead" hidden>Нажмите «Крутить»: цифры номера начнут сменяться и остановятся одна за другой. Каждая лишняя одинаковая цифра подряд поднимает карту на ступень выше: от обычной до легендарной, всего 15 ступеней. К цене добавляется надбавка банка. Кнопка «Магазин» справа внизу открывает улучшения: удача, скорость, пачки, налог. Домик справа вверху открывает профиль: ранг игрока и звук. Кнопка «Цели» слева внизу: бонус дня, задания, достижения и альбом. Кнопки «Банковские карты» и «Паспорта» под заголовком переключают игру: баланс, магазин и коллекция общие. Прогресс сохраняется сам.</p>
     <p class="stats"><span>Баланс: <b id="bal">1 000</b> монет</span><span>Круток: <b id="spins">0</b></span><span>Самая дорогая карта: <b id="bestk">—</b></span><span>Статус: <b id="rank">Обычный</b></span><span>Налогов уплачено: <b id="taxp">0</b></span><span id="shw" hidden>Акции: <b id="shn">0</b></span></p>
+    <div class="events" id="events"></div>
+    <div class="gamebar" id="gamebar" role="group" aria-label="Выбор игры"><button class="tog" type="button" data-game="card" aria-pressed="true">Банковские карты</button><button class="tog" type="button" data-game="pass" aria-pressed="false">Паспорта</button><button class="tog" type="button" data-game="sim" aria-pressed="false">SIM-карты</button><button class="tog" type="button" data-game="plate" aria-pressed="false">Автономера</button></div>
   </header>
 
   <section aria-label="Игра">
@@ -254,6 +325,7 @@ textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);
       <button class="tog bonus" id="bonus" type="button" hidden>Взять 500 монет в подарок</button>
       <div class="toggles">
         <button class="tog" id="fast" type="button" aria-pressed="false">Быстрая крутка: выкл</button>
+        <button class="tog" id="auto" type="button" aria-pressed="false" disabled>Автокрутка: закрыта (магазин)</button>
       </div>
     </div>
   </section>
@@ -274,22 +346,42 @@ textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);
     </section>
   </div>
 
-  <section aria-label="Ступени редкости">
+  <div class="gamebar secbar" id="secbar" role="tablist" aria-label="Разделы"><button class="tog" type="button" data-s="lad">Ступени</button><button class="tog" type="button" data-s="card">Банки</button><button class="tog" type="button" data-s="pass">Страны</button><button class="tog" type="button" data-s="sim">Операторы</button><button class="tog" type="button" data-s="plate">Регионы</button></div>
+  <section aria-label="Ступени редкости" data-sec="lad">
     <h2>Ступени редкости <button class="inf" type="button" data-tip="t_lad" aria-expanded="false" aria-label="Пояснение">!</button></h2>
-    <p class="tip" id="t_lad" hidden>Редкость задаёт самый длинный ряд одинаковых цифр подряд. Закрашенные клетки показывают длину ряда из 16 цифр. Чем выше ступень, тем реже она выпадает и тем дороже карта.</p>
+    <p class="tip" id="t_lad" hidden>Редкость задаёт самый длинный ряд одинаковых цифр подряд. Повторяющиеся узоры тоже считаются: кусок из повторов (919191 или 123123123123) даёт ряд, равный его длине минус длина узора плюс один. Например 919191 это ряд 5, а 123123123123 это ряд 10. Закрашенные клетки показывают длину ряда из 16 цифр (у банковских карт). У паспортов номер короче, поэтому ряд для той же ступени нужен короче: важна доля одинаковых цифр в номере. Чем выше ступень, тем реже она выпадает и тем дороже карта.</p>
     <ul class="ladder" id="tiers"></ul>
   </section>
 
-  <section aria-label="Банки">
+  <section aria-label="Банки" data-sec="card">
     <h2>Банки и надбавка к цене <button class="inf" type="button" data-tip="t_bank" aria-expanded="false" aria-label="Пояснение">!</button></h2>
     <p class="tip" id="t_bank" hidden>Названия банков и платёжных систем слегка изменены, любые совпадения с настоящими случайны. Надбавка зависит от размера банка по активам: чем крупнее банк, тем она больше и тем реже он выпадает.</p>
     <ul class="banks" id="banks"></ul>
   </section>
 
+  <section aria-label="Страны" data-sec="pass">
+    <h2>Страны и надбавка к цене <button class="inf" type="button" data-tip="t_cn" aria-expanded="false" aria-label="Пояснение">!</button></h2>
+    <p class="tip" id="t_cn" hidden>Это игровые коллекционные паспорта: на них нет имён, фото и гербов, номера случайные, это не настоящие документы. Длина номера зависит от страны: 8, 9 или 10 цифр. Надбавка условная, чем она больше, тем реже страна выпадает.</p>
+    <ul class="banks" id="countries"></ul>
+  </section>
+
+  <section aria-label="Операторы" data-sec="sim">
+    <h2>Операторы и надбавка к цене <button class="inf" type="button" data-tip="t_sm" aria-expanded="false" aria-label="Пояснение">!</button></h2>
+    <p class="tip" id="t_sm" hidden>Это игровые SIM-номера в формате +7 и 10 цифр, все номера случайные и выдуманные. Названия операторов слегка изменены. Редкость зависит от самого длинного ряда одинаковых цифр подряд. Надбавка условная, чем она больше, тем реже оператор выпадает.</p>
+    <ul class="banks" id="carriers"></ul>
+  </section>
+
+  <section aria-label="Регионы" data-sec="plate">
+    <h2>Регионы и надбавка к цене <button class="inf" type="button" data-tip="t_rg" aria-expanded="false" aria-label="Пояснение">!</button></h2>
+    <p class="tip" id="t_rg" hidden>Автономер выглядит как А123ВС77: буква, три цифры, две буквы и код региона. В номерах только буквы, которые есть и в русском, и в латинском алфавите. Цифры считаются подряд по всему номеру без букв, буквы тоже. Ряд равен длине ряда цифр плюс длине ряда букв минус один, максимум 7. Например А777АА77 это самый редкий номер. Номера выдуманные, это игра.</p>
+    <ul class="banks" id="regions"></ul>
+  </section>
+
   <p class="foot">Игра вымышленная <button class="inf" type="button" data-tip="t_foot" aria-expanded="false" aria-label="Пояснение">!</button></p>
-  <p class="foot tip" id="t_foot" hidden>Номера карт случайные и выдуманные: они не проходят проверку подлинности и не содержат реальных кодов банков. Названия используются только как метки в игре, игра с банками и платёжными системами не связана. Монеты не имеют денежной стоимости.</p>
+  <p class="foot tip" id="t_foot" hidden>Номера карт случайные и выдуманные: они не проходят проверку подлинности и не содержат реальных кодов банков. Названия используются только как метки в игре, игра с банками и платёжными системами не связана. Монеты не имеют денежной стоимости. Паспорта в игре игровые: это коллекционные карточки со случайными номерами, а не настоящие документы.</p>
 </main>
 <button class="fab" id="fabShop" type="button" aria-label="Открыть магазин улучшений"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 8h14l-1 12H6zM9 8a3 3 0 0 1 6 0"/></svg><span>Магазин</span><i class="dot" id="fabDot" hidden></i></button>
+<button class="fab left" id="fabGoals" type="button" aria-label="Открыть цели и альбом"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0zM7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4"/></svg><span>Цели</span><i class="dot" id="fabGoalsDot" hidden></i></button>
 <button class="home" id="fabHome" type="button" aria-label="Открыть профиль"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg><i class="dot" id="fabHomeDot" hidden></i></button>
 
 <div class="ov" id="ovShop" hidden role="dialog" aria-modal="true" aria-label="Магазин улучшений">
@@ -298,6 +390,14 @@ textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);
     <p class="stats" style="margin:0 0 12px"><span>Баланс: <b id="bal2">1 000</b> монет</span></p>
     <p class="tip" id="t_shop" hidden>Каждое улучшение это ранг: Обычный, Бронза, Серебро, Золото, Платина, Алмаз, Рубин, Изумруд, Корона, Легенда. Следующий ранг стоит заметно дороже предыдущего.</p>
     <div class="shop" id="shop"></div>
+  </div>
+</div>
+
+<div class="ov" id="ovGoals" hidden role="dialog" aria-modal="true" aria-label="Цели и альбом">
+  <div class="sheet">
+    <div class="sheet-h"><h2 style="margin:0">Цели и альбом</h2><button class="x" type="button" aria-label="Закрыть">✕</button></div>
+    <div class="tabs"><button class="tog" type="button" data-gt="0" aria-pressed="true">Сегодня</button><button class="tog" type="button" data-gt="1" aria-pressed="false">Достижения</button><button class="tog" type="button" data-gt="2" aria-pressed="false">Альбом</button></div>
+    <div id="goalsBody"></div>
   </div>
 </div>
 
@@ -312,6 +412,7 @@ textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);
     <div class="toggles">
       <button class="tog" id="snd" type="button" aria-pressed="true">Звук: вкл</button>
       <button class="tog" id="tickT" type="button" aria-pressed="true">Щелчки при вращении: вкл</button>
+      <button class="tog" id="fxT" type="button" aria-pressed="true">Эпичные эффекты: вкл</button>
     </div>
     <label class="vol">Громкость <input type="range" id="vol" min="0" max="100" step="5" value="70"><output id="volO" for="vol">70%</output></label>
 
@@ -324,12 +425,13 @@ textarea{width:100%;margin-top:10px;font:12px/1.4 var(--f-num);color:var(--ink);
     <button class="link" id="reset" type="button" style="margin-top:18px">Сбросить игру</button>
   </div>
 </div>
+<div id="fx" aria-hidden="true"></div><div id="banner" role="status" hidden></div>
 <canvas id="confetti" aria-hidden="true"></canvas>
 
 <script>
 (function(){
 try{if('serviceWorker' in navigator&&location.protocol==='https:')addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}catch(e){}
-function tgInit(){try{if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();Telegram.WebApp.setHeaderColor('#0b251f');Telegram.WebApp.setBackgroundColor('#0b251f')}}catch(e){}}
+function tgInit(){try{if(window.Telegram&&Telegram.WebApp){Telegram.WebApp.ready();Telegram.WebApp.expand();Telegram.WebApp.setHeaderColor('#0b251f');Telegram.WebApp.setBackgroundColor('#0b251f');setTimeout(()=>cloudPull(),0)}}catch(e){}}
 if(document.readyState==='complete')tgInit();else addEventListener('load',tgInit);
 const $=id=>document.getElementById(id);
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -342,6 +444,9 @@ const LV=[{k:2,fam:0,name:'Обычная'},{k:3,fam:1,name:'Необычная'
 [[4,5,2],[6,8,3],[9,12,4],[13,16,5]].forEach(([a,b,f])=>{for(let k=a;k<=b;k++)LV.push({k,fam:f,name:FAMS[f]+' '+ROMAN[k-a]})});
 const NLV=LV.length;
 const lvOf=k=>Math.min(16,Math.max(2,k))-2;
+/* ступень по длине ряда k в номере из n цифр: для 16 цифр это lvOf, для коротких номеров ступени растягиваются */
+const lvFor=(k,n)=>Math.round((Math.min(n,Math.max(2,k))-2)*14/(n-2));
+const GROUPS={16:[4,4,4,4],8:[4,4],9:[3,3,3],10:[5,5]};
 /* шанс ступени в процентах: обычная 40%, дальше каждая следующая в 1,5 раза реже */
 const RR=0.66,XW=(100-40)*(1-RR)/(1-Math.pow(RR,NLV-1));
 const LW=LV.map((_,i)=>i===0?40:XW*Math.pow(RR,i-1));
@@ -356,8 +461,9 @@ const MULTI=[1,2,3,4,5,10,25,50,75,100];
 const PRANKS=['Обычный','Бронза','Серебро','Золото','Платина','Бриллиант','Рубин','Сапфир','Изумруд','Легенда'];
 const PCOL=['#8fa4ae','#d08a4e','#cfd8de','#ffc83d','#7fe0d6','#9fe3ff','#ff5d73','#4c7bff','#52c98a','#ff8be8'];
 const profCost=r=>Math.round(5000*Math.pow(6,r)/50)*50;
-const TRK=['multi','luck','speed','inc','tax','cap'];
-const TR_COST={multi:[900,3.6],luck:[1500,4],speed:[1200,3.4],inc:[2500,4.2],tax:[3000,4],cap:[1800,3.5]};
+const TRK=['multi','luck','speed','inc','tax','cap','auto'];
+const TR_COST={multi:[900,3.6],luck:[1500,4],speed:[1200,3.4],inc:[2500,4.2],tax:[3000,4],cap:[1800,3.5],auto:[8000,3.8]};
+const autoDelay=r=>Math.max(300,3000-300*r);
 const upCost=(id,r)=>Math.round(TR_COST[id][0]*Math.pow(TR_COST[id][1],r)/50)*50;
 /* удача: вес ступени i умножается на (1+0,035·ранг)^i, потом всё приводится к 100% */
 const lwFor=r=>{const w=LW.map((x,i)=>x*Math.pow(1+0.035*r,i));const t=w.reduce((a,b)=>a+b,0);return w.map(x=>x*100/t)};
@@ -414,73 +520,169 @@ const BANKS=[
  {id:'b43',n:'Мор',f:'Мор',b:25,p:1}
 ];
 const BANK_W=BANKS.map(x=>100/(100+x.b));
+/* страны для паспортов: надбавка по условному престижу, длина номера у стран разная (8, 9 или 10 цифр) */
+const COUNTRIES=[['Сингапур',200],['Япония',200],['Южная Корея',200],['Германия',200],
+ ['Италия',140],['Испания',140],['Финляндия',140],['Франция',140],['Швеция',140],
+ ['Нидерланды',90],['Дания',90],['Австрия',90],['Ирландия',90],['Бельгия',90],['Норвегия',90],['Португалия',90],['Швейцария',90],['Греция',90],['Новая Зеландия',90],
+ ['Канада',50],['Австралия',50],['Великобритания',50],['США',50],['Польша',50],['Чехия',50],['Словакия',50],['ОАЭ',50],['Малайзия',50],
+ ['Турция',30],['Бразилия',30],['Мексика',30],['Китай',30],
+ ['Индия',15],['Таиланд',15],
+ ['Египет',10],['Нигерия',10],['Кения',10],['Вьетнам',10]
+].map(([n,b],i)=>({id:'c'+String(i+1).padStart(2,'0'),n,f:n,b,len:[9,8,10][i%3]}));
+/* операторы связи для SIM-номеров: номер из 10 цифр после +7 */
+const CARRIERS=[['МТЦ',120],['Мегафан',120],['Билайм',100],['Теле3',80],['Ёта',60],['Т-Мобайл',60],['СберМобил',40],['Мотив',30],['Ростелеко',30],['Газпром-Мобил',20],['Летай',15],['Волна',10]]
+ .map(([n,b],i)=>({id:'s'+String(i+1).padStart(2,'0'),n,f:n,b,len:10}));
+/* регионы для автономеров: код региона стоит на номере */
+const REGIONS=[['Москва',77,200],['Санкт-Петербург',78,160],['Московская область',50,120],['Краснодарский край',23,100],['Свердловская область',66,80],['Татарстан',16,80],['Ленинградская область',47,80],
+ ['Новосибирская область',54,60],['Самарская область',63,60],['Нижегородская область',52,50],['Ростовская область',61,50],['Башкортостан',2,50],['Челябинская область',74,40],['Красноярский край',24,40],
+ ['Пермский край',59,30],['Воронежская область',36,30],['Омская область',55,25],['Волгоградская область',34,20],['Владимирская область',33,15],['Алтайский край',22,15],['Саратовская область',64,15],['Республика Коми',11,10],['Костромская область',44,10],['Тыва',17,10]]
+ .map(([n,c,b],i)=>({id:'r'+String(i+1).padStart(2,'0'),n,f:n,b,code:String(c).padStart(2,'0')}));
+BANKS.forEach(x=>{x.ty='card'});COUNTRIES.forEach(x=>{x.ty='pass'});CARRIERS.forEach(x=>{x.ty='sim'});REGIONS.forEach(x=>{x.ty='plate'});
+const ENT=BANKS.concat(COUNTRIES,CARRIERS,REGIONS);
+const CARRIER_W=CARRIERS.map(x=>100/(100+x.b)),REGION_W=REGIONS.map(x=>100/(100+x.b));
+const ALPH='АВЕКМНОРСТУХ',PL_L=[0,4,5],PL_D=[1,2,3,6,7];
+/* вид номера: префикс, группы клеток и разделители между ними */
+const LAYOUT={card:{pre:'',g:[4,4,4,4],sep:['','','']},pass:null,sim:{pre:'+7',g:[3,3,2,2],sep:[' ',' ','-']},plate:{pre:'',g:[1,3,2,2],sep:['','','']}};
+function layoutOf(type,n){
+  if(type==='pass'){const g=GROUPS[n]||[n];return{pre:'',g,sep:g.map(()=>'')}}
+  return LAYOUT[type]||LAYOUT.card;
+}
+const GAMES={card:{b:'Банковские карты',w:'карта',pool:()=>BANKS,pk:'банк'},pass:{b:'Паспорта',w:'паспорт',pool:()=>COUNTRIES,pk:'страна'},sim:{b:'SIM-карты',w:'SIM-карта',pool:()=>CARRIERS,pk:'оператор'},plate:{b:'Автономера',w:'автономер',pool:()=>REGIONS,pk:'регион'}};
+const TYPES=Object.keys(GAMES);
+const COUNTRY_W=COUNTRIES.map(x=>100/(100+x.b));
 const rnd=n=>Math.floor(Math.random()*n);
 function pickW(ws){let s=0;for(const w of ws)s+=w;let r=Math.random()*s;for(let i=0;i<ws.length;i++){r-=ws[i];if(r<0)return i}return ws.length-1}
 function luhn(s){let sum=0;for(let i=0;i<s.length;i++){let d=+s[s.length-1-i];if(i%2){d*=2;if(d>9)d-=9}sum+=d}return sum%10===0}
 /* k: самый длинный ряд одинаковых цифр подряд, d: его цифра, s: позиция начала ряда (при равенстве берётся левый) */
 function analyze(num){
-  let k=1,s=0,run=1,rs=0;
-  for(let i=1;i<=16;i++){
-    if(i<16&&num[i]===num[i-1]){run++}
+  const n=num.length;
+  let k=1,s=0,run=1,rs=0,p=1;
+  for(let i=1;i<=n;i++){
+    if(i<n&&num[i]===num[i-1]){run++}
     else{if(run>k){k=run;s=rs}run=1;rs=i}
   }
-  const lv=lvOf(k);
-  return{num,d:+num[s],k,s,lv,tier:LV[lv].fam,name:LV[lv].name};
+  let sl=k;
+  /* повторяющиеся узоры вроде 919191 или 123123123123: период q, кусок из m+q цифр равен ряду длиной m+1 */
+  for(let q=2;q<=5;q++){
+    let m=0;
+    for(let i=q;i<n;i++){
+      if(num[i]===num[i-q]){m++;if(m>=q&&m+1>k){k=m+1;s=i-m+1-q;sl=m+q;p=q}}else m=0;
+    }
+  }
+  const lv=lvFor(k,n);
+  return{num,d:+num[s],k,s,sl,p,pat:num.slice(s,s+p),lv,tier:LV[lv].fam,name:LV[lv].name,n};
 }
-function makeNum(lv){
-  const R=LV[lv].k;
+/* автономер: цифры считаются подряд без букв, буквы тоже; ряд = цифры + буквы - 1, максимум 7 */
+function analyzePlate(num){
+  const run=(idx)=>{let best=1,bs=0,r=1,st=0;for(let j=1;j<=idx.length;j++){
+    if(j<idx.length&&num[idx[j]]===num[idx[j-1]])r++;else{if(r>best){best=r;bs=st}r=1;st=j}}
+    return{r:best,s:bs}};
+  const D=run(PL_D),Lr=run(PL_L),k=D.r+Lr.r-1;
+  const hl=[];
+  if(D.r>=2)for(let j=D.s;j<D.s+D.r;j++)hl.push(PL_D[j]);
+  if(Lr.r>=2)for(let j=Lr.s;j<Lr.s+Lr.r;j++)hl.push(PL_L[j]);
+  const lv=lvFor(k,7);
+  return{num,d:D.r>=2?+num[PL_D[D.s]]:+num[1],k,s:0,lv,tier:LV[lv].fam,name:LV[lv].name,n:7,rD:D.r,rL:Lr.r,dc:num[PL_D[D.s]],lc:num[PL_L[Lr.s]],hl};
+}
+/* строит массив длины len с рядом ровно r одинаковых значений; fixed[i] != null это уже заданные значения */
+function runArr(len,r,fixed,alpha){
+  const st=rnd(len-r+1);let d=null;
+  for(let i=st;i<st+r;i++)if(fixed[i]!=null){if(d!==null&&d!==fixed[i])return null;d=fixed[i]}
+  if(d===null)d=rnd(alpha);
+  const a=Array(len);
+  for(let i=0;i<len;i++){
+    if(i>=st&&i<st+r)a[i]=d;
+    else if(fixed[i]!=null)a[i]=fixed[i];
+    else{let v=rnd(alpha);if(i===st-1||i===st+r){v=rnd(alpha-1);if(v>=d)v++}a[i]=v}
+  }
+  return a;
+}
+function makePlate(lv){
+  const R=2+Math.round(lv*5/14),L=lvFor(R,7);
+  for(let t=0;t<600;t++){
+    const reg=REGIONS[pickW(REGION_W)];
+    const rLs=[1,2,3].filter(r=>R+1-r>=1&&R+1-r<=5),rL=rLs[rnd(rLs.length)],rD=R+1-rL;
+    const dg=runArr(5,rD,[null,null,null,+reg.code[0],+reg.code[1]],10),lt=runArr(3,rL,[null,null,null],ALPH.length);
+    if(!dg||!lt)continue;
+    const num=ALPH[lt[0]]+dg[0]+dg[1]+dg[2]+ALPH[lt[1]]+ALPH[lt[2]]+reg.code;
+    const c=analyzePlate(num);
+    if(c.lv!==L)continue;
+    c.b=reg;c.type='plate';c.price=priceOf(c);return c;
+  }
+  const reg=REGIONS[0],c=analyzePlate('А123ВС'+reg.code);c.b=reg;c.type='plate';c.price=priceOf(c);return c;
+}
+function makeSim(lv){
+  const b=CARRIERS[pickW(CARRIER_W)];
+  for(;;){const c=makeNum(lv,10);if(c.num[0]!=='9')continue;c.b=b;c.type='sim';c.price=priceOf(c);return c}
+}
+function makeNum(lv,n=16){
+  const R=n===16?LV[lv].k:2+Math.round(lv*(n-2)/14);
+  const L=lvFor(R,n);
   for(;;){
     let a;
-    if(lv===0){a=Array.from({length:16},()=>rnd(10))}
+    if(L===0){a=Array.from({length:n},()=>rnd(10))}
+    else if(R>=3&&n-R>=1&&Math.random()<.3){
+      const p=2+rnd(Math.min(3,R-2,n-R)),segL=R+p-1,st=rnd(n-segL+1);
+      const blk=Array.from({length:p},()=>rnd(10));
+      a=Array.from({length:n},()=>rnd(10));
+      for(let i=st;i<st+segL;i++)a[i]=blk[(i-st)%p];
+    }
     else{
-      const d=rnd(10),st=rnd(17-R);
-      a=Array(16).fill(-1);
+      const d=rnd(10),st=rnd(n+1-R);
+      a=Array(n).fill(-1);
       for(let i=st;i<st+R;i++)a[i]=d;
-      for(let i=0;i<16;i++)if(a[i]<0){
+      for(let i=0;i<n;i++)if(a[i]<0){
         let v=rnd(10);
         if(i===st-1||i===st+R){v=rnd(9);if(v>=d)v++}
         a[i]=v;
       }
     }
     const s=a.join('');
-    if(luhn(s))continue;
+    if(n===16&&luhn(s))continue;
     const c=analyze(s);
-    if(c.lv!==lv)continue;
+    if(c.lv!==L)continue;
     return c;
   }
 }
 /* цена = базовая цена ступени × надбавка банка × 3 для идеала (16 из 16) */
 function priceOf(c){
-  const v=LP[c.lv]*(1+c.b.b/100)*(c.k===16?3:1);
+  const v=LP[c.lv]*(1+c.b.b/100)*(c.k===c.n?3:1);
   return Math.max(10,Math.round(v/10)*10);
 }
-function makeCard(lv){const c=makeNum(lv);c.b=BANKS[pickW(BANK_W)];c.price=priceOf(c);return c}
-function mkFrom(num,id){const b=BANKS.find(x=>x.id===id);if(!b)return null;const c=analyze(num);c.b=b;c.price=priceOf(c);return c}
-function ser(c){return c.num+':'+c.b.id}
-function de(s){const m=/^(\d{16}):([a-z0-9]+)$/.exec(String(s));return m?mkFrom(m[1],m[2]):null}
+const MAKERS={};
+function makeCard(lv){const c=makeNum(lv);c.b=BANKS[pickW(BANK_W)];c.type='card';c.price=priceOf(c);return c}
+function makePass(lv){const b=COUNTRIES[pickW(COUNTRY_W)];const c=makeNum(lv,b.len);c.b=b;c.type='pass';c.price=priceOf(c);return c}
+function mkFrom(num,id,ty){const b=ENT.find(x=>x.id===id);if(!b||b.ty!==ty)return null;
+  if(ty==='pass'&&b.len!==num.length)return null;
+  if(ty==='plate'&&num.slice(6)!==b.code)return null;
+  const c=ty==='plate'?analyzePlate(num):analyze(num);c.b=b;c.type=ty;c.price=priceOf(c);return c}
+MAKERS.card=makeCard;MAKERS.pass=makePass;MAKERS.sim=makeSim;MAKERS.plate=makePlate;
+function ser(c){return ({card:'',pass:'p:',sim:'s:',plate:'a:'})[c.type]+c.num+':'+c.b.id}
+const DE_RX=/^(?:(\d{16})|p:(\d{8,10})|s:(\d{10})|a:([АВЕКМНОРСТУХ]\d{3}[АВЕКМНОРСТУХ]{2}\d{2})):([bcsr]\d{2})$/;
+function de(s){const m=DE_RX.exec(String(s));if(!m)return null;
+  const ty=m[1]?'card':m[2]?'pass':m[3]?'sim':'plate';return mkFrom(m[1]||m[2]||m[3]||m[4],m[5],ty)}
 /* барабан цифры: L+1 значений подряд (…, 3, 4, 5, …), последнее равно нужной цифре */
+function reelLetters(ch,L){const t=ALPH.indexOf(ch),a=[];for(let j=0;j<=L;j++)a.push(ALPH[(((t-(L-j))%ALPH.length)+ALPH.length)%ALPH.length]);return a}
 function reelDigits(target,L){const a=[];for(let j=0;j<=L;j++)a.push((((target-(L-j))%10)+10)%10);return a}
 // LOGIC END
 
 const fmtP=n=>n.toLocaleString('ru-RU');
 const fmtPct=p=>p>=10?Math.round(p)+'%':p.toLocaleString('ru-RU',{maximumFractionDigits:p>=1?1:2})+'%';
-const repText=c=>c.k>=2?'<b>'+c.d+'</b> × '+c.k+' подряд':'без повторов';
+const repText=c=>c.type==='plate'?(c.k>=2?(c.rD>=2?'<b>'+c.dc+'</b> × '+c.rD:'')+(c.rD>=2&&c.rL>=2?' + ':'')+(c.rL>=2?'<b>'+c.lc+'</b> × '+c.rL:''):'без повторов'):(c.p>1?'узор <b>'+c.pat+'</b>':c.k>=2?'<b>'+c.d+'</b> × '+c.k+' подряд':'без повторов');
 function plural(n){const m=n%100,l=n%10;return(m>=12&&m<=14)?'раз':(l>=2&&l<=4)?'раза':'раз'}
-function meterHTML(k,fam){
-  return '<span class="meter" style="--accent:var(--t'+fam+')" aria-hidden="true">'+Array.from({length:16},(_,i)=>'<i'+(i<k?' class="on"':'')+'></i>').join('')+'</span>';
+function meterHTML(k,fam,n=16){
+  return '<span class="meter" style="--accent:var(--t'+fam+');grid-template-columns:repeat('+n+',9px)" aria-hidden="true">'+Array.from({length:n},(_,i)=>'<i'+(i<k?' class="on"':'')+'></i>').join('')+'</span>';
 }
-function numHTML(c){
-  const show=c.k>=3;let out='';
-  for(let g=0;g<4;g++){
-    out+='<span class="g">';
-    for(let i=g*4;i<g*4+4;i++){const ch=c.num[i];out+=(show&&i>=c.s&&i<c.s+c.k)?'<i class="h">'+ch+'</i>':'<i>'+ch+'</i>'}
-    out+='</span>';
-  }
-  return out;
-}
+const TAGW={pass:'паспорт',sim:'sim',plate:'номер'};
+const hlAt=(c,i)=>c.hl?c.hl.includes(i):(c.k>=3&&i>=c.s&&i<c.s+(c.sl||c.k));
+function layHTML(L,cell){let out=L.pre?'<span class="pre">'+L.pre+'</span>':'',i=0;
+  L.g.forEach((g,gi)=>{const d=L.sep[gi]==='-';out+='<span class="g'+(d?' nm':'')+'">';for(let j=0;j<g;j++,i++)out+=cell(i);out+='</span>'+(d?'<span class="sp">-</span>':'')});
+  return out}
+function numHTML(c){return layHTML(layoutOf(c.type,c.num.length),i=>hlAt(c,i)?'<i class="h">'+c.num[i]+'</i>':'<i>'+c.num[i]+'</i>')}
 function cardHTML(c){
-  return '<div class="card t'+c.tier+'" role="img" aria-label="'+c.b.n+', '+c.name+', номер '+c.num+', цена '+fmtP(c.price)+' монет"><div class="cin">'
-    +'<span class="bn">'+c.b.n+'</span>'
+  const ps=c.type!=='card';
+  return '<div class="card t'+c.tier+(ps?' '+c.type:'')+'" role="img" aria-label="'+(ps?GAMES[c.type].b+', ':'')+c.b.n+', '+c.name+', номер '+c.num+', цена '+fmtP(c.price)+' монет"><div class="cin">'
+    +'<span class="bn">'+c.b.n+(ps?' <small>'+TAGW[c.type]+'</small>':'')+'</span>'
     +'<div class="row2"><div class="chip"></div><span class="tl">'+c.name+'</span></div>'
     +'<div class="num">'+numHTML(c)+'</div>'
     +'<div class="bot"><span class="rep">'+repText(c)+'</span><span class="pr">'+fmtP(c.price)+'<i class="coin"></i></span></div>'
@@ -489,35 +691,174 @@ function cardHTML(c){
 
 /* ---------- state ---------- */
 const KEY='ruletka-nomerov-kart-v5',OLD_KEY='ruletka-nomerov-kart-v4';
+const idleInfo=()=>{const g=GAMES[S.game];if(S.game==='card')return IDLE;
+  const nm={pass:['Ваш паспорт','паспорт'],sim:['Ваша SIM-карта','номер'],plate:['Ваш автономер','автономер']}[S.game];
+  return IDLE.replace('Ваша карта',nm[0]).replace('Потом карта получит ступень редкости, банк и цену','Потом '+nm[1]+' получит ступень редкости, '+(S.game==='pass'?'страну':S.game==='sim'?'оператора':'регион')+' и цену').replace('Цифры начнут','Символы начнут')};
 const IDLE='<p class="rname">Ваша карта '+'<button class="inf" type="button" data-tip="t_idle" aria-expanded="false" aria-label="Пояснение">!</button></p><p class="muted">Нажмите «Крутить».</p><p class="tip" id="t_idle" hidden>Цифры начнут сменяться и остановятся одна за другой слева направо. Потом карта получит ступень редкости, банк и цену.</p>';
-const fresh=()=>({v:5,spins:0,counts:Array(NLV).fill(0),best:null,inv:[],bal:START_BAL,up:{multi:0,luck:0,speed:0,inc:0,tax:0,cap:0},taxPaid:0,earned:0,shares:0,runs:0,prof:0});
-function parseState(p){
+const dayNum=()=>{const d=new Date();return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/864e5)};
+const albumCount=s=>Object.values(s.album).reduce((a,r)=>a+Object.keys(r).length,0);
+const albumFull=s=>Object.values(s.album).filter(r=>Object.keys(r).length===6).length;
+const rankSumOf=s=>TRK.reduce((a,id)=>a+s.up[id],0);
+const albumBonus=s=>.002*albumCount(s)+.01*albumFull(s);
+/* достижения: [id, название, описание, прогресс(s), цель, монеты, бонус к удаче в рангах] */
+const ACH=[
+ ['sp1','Новичок','Открыть 25 карт',s=>s.spins,25,2000,0],
+ ['sp2','Игрок','Открыть 250 карт',s=>s.spins,250,25000,.1],
+ ['sp3','Азартный','Открыть 2 500 карт',s=>s.spins,2500,400000,.2],
+ ['sp4','Легенда рулетки','Открыть 25 000 карт',s=>s.spins,25000,6000000,.4],
+ ['rn1','Эпический ряд','Выбить ряд из 6 одинаковых цифр',s=>s.maxk,6,10000,.1],
+ ['rn2','Мифический ряд','Выбить ряд из 9 одинаковых цифр',s=>s.maxk,9,150000,.2],
+ ['rn3','Легендарный ряд','Выбить ряд из 13 одинаковых цифр',s=>s.maxk,13,3000000,.4],
+ ['rn4','Идеал','Выбить карту или паспорт, где все цифры одинаковые',s=>s.maxk,16,100000000,1],
+ ['sl1','Торговец','Продать 50 карт',s=>s.sold,50,5000,0],
+ ['sl2','Делец','Продать 500 карт',s=>s.sold,500,80000,.1],
+ ['sl3','Магнат','Продать 5 000 карт',s=>s.sold,5000,1500000,.2],
+ ['bk1','Знакомство с банками','Получить карты 10 разных банков',s=>s.banks.filter(i=>i[0]==='b').length,10,8000,0],
+ ['bk2','Все банки','Получить карты всех 43 банков и систем',s=>s.banks.filter(i=>i[0]==='b').length,43,2000000,.3],
+ ['pc1','Путешественник','Получить паспорта 10 разных стран',s=>s.banks.filter(i=>i[0]==='c').length,10,12000,.1],
+ ['pc2','Мир на ладони','Получить паспорта всех 38 стран',s=>s.banks.filter(i=>i[0]==='c').length,38,2500000,.3],
+ ['sm1','Абонент','Получить SIM-карты 6 разных операторов',s=>s.banks.filter(i=>i[0]==='s').length,6,10000,.1],
+ ['sm2','Все операторы','Получить SIM-карты всех 12 операторов',s=>s.banks.filter(i=>i[0]==='s').length,12,1500000,.3],
+ ['rg1','Автомобилист','Получить автономера 8 разных регионов',s=>s.banks.filter(i=>i[0]==='r').length,8,10000,.1],
+ ['rg2','Вся страна','Получить автономера всех 24 регионов',s=>s.banks.filter(i=>i[0]==='r').length,24,2500000,.3],
+ ['al1','Коллекционер','Поставить в альбом 10 карт',s=>albumCount(s),10,15000,.1],
+ ['al2','Мастер альбома','Поставить в альбом 50 карт',s=>albumCount(s),50,600000,.2],
+ ['al3','Полный альбом','Заполнить все слоты альбома',s=>albumCount(s),()=>6*entOf(S.game).length,200000000,1],
+ ['rk1','Улучшатель','Набрать 20 рангов улучшений в сумме',s=>rankSumOf(s),20,50000,.1],
+ ['rk2','Всё по максимуму','Набрать 63 ранга: все улучшения на максимум',s=>rankSumOf(s),63,500000000,1],
+ ['tx1','Налогоплательщик','Заплатить 100 000 налогов',s=>s.taxPaid,1e5,40000,0],
+ ['tx2','Главный налогоплательщик','Заплатить 100 млн налогов',s=>s.taxPaid,1e8,50000000,.2],
+ ['sh1','Новый банк','Получить первую акцию',s=>s.shares,1,500000,.2],
+ ['sh2','Банковская империя','Получить 5 акций',s=>s.shares,5,50000000,.5]
+];
+const ag=a=>typeof a[4]==='function'?a[4]():a[4];
+const ACH_MODE={bk:'card',pc:'pass',sm:'sim',rg:'plate'};
+const achRel=a=>!ACH_MODE[a[0].slice(0,2)]||ACH_MODE[a[0].slice(0,2)]===S.game;
+const fresh=()=>({v:6,ts:0,spins:0,counts:Array(NLV).fill(0),best:null,inv:[],bal:START_BAL,up:{multi:0,luck:0,speed:0,inc:0,tax:0,cap:0,auto:0},taxPaid:0,earned:0,shares:0,runs:0,prof:0,game:'card',locks:[],sold:0,banks:[],maxk:0,album:{},ach:{},q:{d:0,opened:0,sold:0,bestlv:0,done:[]},daily:{d:0,streak:0},saves:{}});
+function parseSub(p){
   if(!p||typeof p!=='object'||!Array.isArray(p.counts)||p.counts.length!==NLV)return null;
   const n=(x,d=0)=>Number.isFinite(+x)?Math.max(0,Math.floor(+x)):d;
   const o=fresh();
-  o.spins=n(p.spins);o.counts=p.counts.map(x=>n(x));o.bal=n(p.bal,START_BAL);
+  o.ts=n(p.ts);o.spins=n(p.spins);o.counts=p.counts.map(x=>n(x));o.bal=n(p.bal,START_BAL);
   o.taxPaid=n(p.taxPaid);o.earned=n(p.earned);o.shares=n(p.shares);o.runs=n(p.runs);o.prof=Math.min(MAXR,n(p.prof));
+  o.sold=n(p.sold);o.maxk=Math.min(16,n(p.maxk));o.game=TYPES.includes(p.game)?p.game:'card';
   TRK.forEach(id=>{o.up[id]=Math.min(MAXR,n(p.up&&p.up[id]))});
   o.inv=(Array.isArray(p.inv)?p.inv:[]).filter(x=>de(x)).slice(0,capFor(o.up.cap));
   o.best=de(p.best)?p.best:null;
+  o.locks=(Array.isArray(p.locks)?p.locks:[]).filter(x=>o.inv.includes(x));
+  o.banks=(Array.isArray(p.banks)?p.banks:[]).filter((id,i,a)=>ENT.some(b=>b.id===id)&&a.indexOf(id)===i);
+  if(p.album&&typeof p.album==='object')for(const id of Object.keys(p.album)){
+    const row=p.album[id];if(!ENT.some(b=>b.id===id)||!row||typeof row!=='object')continue;
+    for(const f of Object.keys(row)){const c=de(row[f]);if(c&&c.b.id===id&&String(c.tier)===f)(o.album[id]=o.album[id]||{})[f]=row[f]}
+  }
+  if(p.ach&&typeof p.ach==='object')for(const a of ACH)if(p.ach[a[0]])o.ach[a[0]]=1;
+  const q=p.q||{};o.q={d:n(q.d),opened:n(q.opened),sold:n(q.sold),bestlv:n(q.bestlv),done:Array.isArray(q.done)?q.done.filter(x=>x==='qo'||x==='qs'||x==='ql'):[]};
+  const dl=p.daily||{};o.daily={d:n(dl.d),streak:n(dl.streak)};
   return o;
+}
+/* у каждого режима игры своё всё: баланс, улучшения, коллекция, самая дорогая вещь, достижения */
+const PF=['spins','counts','best','inv','bal','up','taxPaid','earned','shares','runs','prof','locks','sold','banks','maxk','album','ach','q','daily'];
+const pickF=o=>{const r={};PF.forEach(k=>{r[k]=o[k]});return r};
+const freshSub=()=>pickF(fresh());
+const entOf=g=>ENT.filter(x=>x.ty===g);
+function parseState(p){
+  const o=parseSub(p);if(!o)return null;
+  o.saves={};
+  if(p.saves&&typeof p.saves==='object'){
+    for(const g of TYPES){if(g===o.game)continue;const q=parseSub(p.saves[g]);if(q)o.saves[g]=pickF(q)}
+  }else{
+    /* старое сохранение: всё лежало вместе, раскладываем по режимам */
+    const bestOf=a=>a.reduce((m,x)=>(!m||de(x).price>de(m).price)?x:m,null);
+    const origBest=o.best;
+    for(const g of TYPES){
+      if(g===o.game)continue;
+      const sub=freshSub();
+      sub.inv=o.inv.filter(x=>de(x).type===g);
+      sub.banks=o.banks.filter(id=>(ENT.find(b=>b.id===id)||{}).ty===g);
+      for(const id of Object.keys(o.album))if((ENT.find(b=>b.id===id)||{}).ty===g)sub.album[id]=o.album[id];
+      if(origBest&&de(origBest).type===g)sub.best=origBest;
+      else sub.best=bestOf(sub.inv);
+      o.saves[g]=sub;
+    }
+    o.inv=o.inv.filter(x=>de(x).type===o.game);o.locks=o.locks.filter(x=>o.inv.includes(x));
+    o.banks=o.banks.filter(id=>(ENT.find(b=>b.id===id)||{}).ty===o.game);
+    for(const id of Object.keys(o.album))if((ENT.find(b=>b.id===id)||{}).ty!==o.game)delete o.album[id];
+    o.best=(origBest&&de(origBest).type===o.game)?origBest:bestOf(o.inv);
+  }
+  return o;
+}
+function snap(){const o=Object.assign({},S);o.saves=Object.assign({},S.saves);delete o.saves[S.game];return o}
+function switchGame(g){
+  if(g===S.game||!TYPES.includes(g))return;
+  S.saves[S.game]=pickF(S);
+  const sub=S.saves[g]||freshSub();delete S.saves[g];
+  PF.forEach(k=>{S[k]=sub[k]});S.game=g;
 }
 let busy=false,shown=null,shownPrice=0,batchN=1,wantN=1,parm=0;
 let S=fresh();
 try{S=parseState(JSON.parse(localStorage.getItem(KEY)||'null'))||parseState(JSON.parse(localStorage.getItem(OLD_KEY)||'null'))||S}catch(e){}
-let CURLW=lwFor(S.up.luck);
-const incMul=()=>1+.08*S.up.inc+.10*S.prof+.25*S.shares;
+const achLuck=()=>ACH.reduce((a,x)=>a+(S.ach[x[0]]?x[6]:0),0);
+/* события: банк дня и час удачи зависят от даты */
+const dayBank=()=>BANKS[(dayNum()*11+3)%BANKS.length];
+const dayCountry=()=>COUNTRIES[(dayNum()*5+2)%COUNTRIES.length];
+const luckyHourOf=dn=>(dn*7+5)%24;
+const isLucky=()=>new Date().getHours()===luckyHourOf(dayNum());
+const luckEff=()=>S.up.luck+achLuck()+(isLucky()?3:0);
+let CURLW=lwFor(luckEff());
+const incMul=()=>1+.08*S.up.inc+.10*S.prof+.25*S.shares+albumBonus(S);
 const SKEY='ruletka-nomerov-kart-set';
-const SET={snd:true,vol:70,tick:true};
-try{const q=JSON.parse(localStorage.getItem(SKEY)||'null');if(q){SET.snd=q.snd!==false;SET.tick=q.tick!==false;if(Number.isFinite(+q.vol))SET.vol=Math.min(100,Math.max(0,+q.vol))}}catch(e){}
+const SET={snd:true,vol:70,tick:true,fx:true};
+try{const q=JSON.parse(localStorage.getItem(SKEY)||'null');if(q){SET.snd=q.snd!==false;SET.tick=q.tick!==false;SET.fx=q.fx!==false;if(Number.isFinite(+q.vol))SET.vol=Math.min(100,Math.max(0,+q.vol))}}catch(e){}
 const saveSet=()=>{try{localStorage.setItem(SKEY,JSON.stringify(SET))}catch(e){}};
 const curCap=()=>capFor(S.up.cap);
-function sale(c){const g=Math.round(c.price*incMul());const t=taxOf(g,taxCut(S.up.tax));return{g,t,n:g-t}}
+const isPass=()=>S.game==='pass';
+const dayCarrier=()=>CARRIERS[(dayNum()*7+1)%CARRIERS.length];
+const dayRegion=()=>REGIONS[(dayNum()*3+4)%REGIONS.length];
+const dayIds=()=>[dayBank().id,dayCountry().id,dayCarrier().id,dayRegion().id];
+function sale(c){const g=Math.round(c.price*incMul()*(dayIds().includes(c.b.id)?2:1));const t=taxOf(g,taxCut(S.up.tax));return{g,t,n:g-t}}
+const TGC=()=>{try{const w=window.Telegram&&Telegram.WebApp;return(w&&w.CloudStorage&&(!w.isVersionAtLeast||w.isVersionAtLeast('6.9')))?w.CloudStorage:null}catch(e){return null}};
+let cloudT=0;
+function cloudPush(){
+  const cs=TGC();if(!cs)return;
+  clearTimeout(cloudT);
+  cloudT=setTimeout(()=>{
+    try{
+      const str=JSON.stringify(snap()),N=Math.ceil(str.length/3500),ts=S.ts;let i=0;
+      const step=()=>{
+        if(i<N)cs.setItem('sv'+i,str.slice(i*3500,(i+1)*3500),err=>{if(!err){i++;step()}});
+        else cs.setItem('svn',N+':'+ts,()=>{});
+      };
+      step();
+    }catch(e){}
+  },4000);
+}
+function cloudPull(){
+  const cs=TGC();if(!cs)return;
+  try{
+    cs.getItem('svn',(err,val)=>{
+      if(err)return;
+      if(!val){if(S.spins)cloudPush();return}
+      const[ns,ts]=String(val).split(':'),N=+ns,T=+ts;
+      if(!(N>0&&N<200))return;
+      if(T<=(S.ts||0)){if(T<(S.ts||0))cloudPush();return}
+      const keys=Array.from({length:N},(_,i)=>'sv'+i);
+      cs.getItems(keys,(e2,vals)=>{
+        if(e2||!vals||busy)return;
+        try{
+          const o=parseState(JSON.parse(keys.map(k=>vals[k]||'').join('')));
+          if(!o)return;
+          S=o;try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}
+          renderAll();toIdle();msg('Прогресс загружен из облака Telegram');
+        }catch(e){}
+      });
+    });
+  }catch(e){}
+}
 function fmtB(n){
   if(n<1e6)return fmtP(n);
   for(const[v,u]of[[1e12,'трлн'],[1e9,'млрд'],[1e6,'млн']])if(n>=v){const x=n/v;return(x>=100?Math.round(x):x>=10?Math.round(x*10)/10:Math.round(x*100)/100).toLocaleString('ru-RU')+' '+u}
 }
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function save(){S.ts=Date.now();try{localStorage.setItem(KEY,JSON.stringify(snap()))}catch(e){}cloudPush()}
 
 function renderBatch(){
   const o=MULTI.slice(0,S.up.multi+1),aff=Math.max(1,Math.floor(S.bal/SPIN_COST));
@@ -528,6 +869,7 @@ function renderBatch(){
   el.innerHTML='<span class="lbl">Открывать за раз:</span>'+o.map(n=>'<button class="tog" type="button" data-n="'+n+'" aria-pressed="'+(n===batchN)+'"'+(n>aff?' disabled':'')+'>×'+n+'</button>').join('');
 }
 function updateSpin(){
+  renderGame();
   const b=$('spin');
   if(busy){b.disabled=true;b.textContent='Крутится…';return}
   const cost=batchN*SPIN_COST,can=S.bal>=cost;
@@ -537,8 +879,8 @@ function updateSpin(){
 }
 function refreshSellNow(){
   const b=$('sellNow');if(!b||!shown)return;
-  const has=S.inv.includes(shown);
-  b.disabled=!has;b.textContent=has?('Продать · '+fmtB(sale(de(shown)).n)):'Продано';
+  const has=S.inv.includes(shown),lk=S.locks.includes(shown);
+  b.disabled=!has||lk;b.textContent=has?(lk?'Защищена от продажи':'Продать · '+fmtB(sale(de(shown)).n)):'Продано';
 }
 const rankSum=()=>TRK.reduce((a,id)=>a+S.up[id],0);
 function renderStats(){
@@ -553,14 +895,89 @@ function renderStats(){
 function renderTiers(){document.querySelectorAll('[data-cnt]').forEach(el=>{el.textContent=S.counts[+el.dataset.cnt]})}
 function renderChances(){document.querySelectorAll('[data-ch]').forEach(el=>{el.textContent=fmtPct(CURLW[+el.dataset.ch])})}
 function renderBest(){const b=S.best?de(S.best):null;$('best').innerHTML=b?cardHTML(b):'<p class="note">Пока нет карт. Сделайте первую крутку.</p>'}
+function albumHas(c){return !!(S.album[c.b.id]&&S.album[c.b.id][c.tier])}
 function renderInv(){
   $('inv').innerHTML=S.inv.length?S.inv.map((s,i)=>{
-    const c=de(s),v=sale(c);
-    return '<div class="inv-item">'+cardHTML(c)+'<button class="sell-sm" type="button" data-sell="'+i+'">Продать · '+fmtB(v.n)+(v.t?'<small>налог '+fmtB(v.t)+'</small>':'')+'</button></div>';
+    const c=de(s),v=sale(c),lk=S.locks.includes(s),bd=dayIds().includes(c.b.id);
+    const small=[bd?'банк дня ×2':'',v.t?'налог '+fmtB(v.t):''].filter(Boolean).join(', ');
+    return '<div class="inv-item">'+cardHTML(c)
+      +'<button class="sell-sm" type="button" data-sell="'+i+'"'+(lk?' disabled':'')+'>'+(lk?'Защищена':'Продать · '+fmtB(v.n)+(small?'<small>'+small+'</small>':''))+'</button>'
+      +'<div class="two"><button class="sell-sm" type="button" data-lock="'+i+'" aria-pressed="'+lk+'">'+(lk?'Снять защиту':'Защитить')+'</button>'
+      +(albumHas(c)?'':'<button class="sell-sm" type="button" data-alb="'+i+'">В альбом</button>')+'</div></div>';
   }).join(''):'<p class="note">Пока нет карт. Каждая выпавшая карта попадает сюда.</p>';
-  $('sellLow').disabled=!S.inv.some(s=>de(s).lv<=3);
+  $('sellLow').disabled=!S.inv.some(s=>de(s).lv<=3&&!S.locks.includes(s));
   $('capn').textContent=S.inv.length+' / '+curCap();
-  $('capnote').textContent='В коллекции '+S.inv.length+' из '+curCap()+' карт. При переполнении самая дешёвая из старых продаётся сама, с налогом. Цена продажи сейчас '+(incMul()>1?'+'+Math.round((incMul()-1)*100)+'% к цене на карте.':'равна цене на карте.');
+  $('capnote').textContent='В коллекции '+S.inv.length+' из '+curCap()+' карт. При переполнении самая дешёвая незащищённая карта продаётся сама, с налогом. Защита не даёт продать карту вручную и в массовой продаже. Кнопка «В альбом» ставит карту в альбом: она остаётся там навсегда и даёт бонус к цене продажи. Цена продажи сейчас '+(incMul()>1?'+'+Math.round((incMul()-1)*100)+'% к цене на карте.':'равна цене на карте.');
+}
+function renderGame(){
+  document.querySelectorAll('[data-game]').forEach(b=>{b.setAttribute('aria-pressed',String(b.dataset.game===S.game));b.disabled=busy});
+}
+/* ---------- события, автокрутка, цели ---------- */
+function ensureDay(){const d=dayNum();if(S.q.d!==d)S.q={d,opened:0,sold:0,bestlv:0,done:[]}}
+function countSold(n){ensureDay();S.sold+=n;S.q.sold+=n}
+function nextLucky(){
+  const now=new Date(),dn=dayNum(),h=luckyHourOf(dn);
+  if(now.getHours()<h)return 'сегодня в '+h+':00';
+  return 'завтра в '+luckyHourOf(dn+1)+':00';
+}
+function renderEvents(){
+  const b=dayBank(),lk=isLucky();
+  $('events').innerHTML='<span class="on">Банк дня: '+b.n+' (продажа ×2)</span><span class="on">Страна дня: '+dayCountry().n+' (×2)</span><span class="on">Оператор дня: '+dayCarrier().n+' (×2)</span><span class="on">Регион дня: '+dayRegion().n+' (×2)</span>'
+    +(lk?'<span class="on">Час удачи идёт: удача +3 ранга</span>':'<span>Час удачи '+nextLucky()+'</span>');
+}
+let autoOn=false,autoT=0;
+function renderAuto(){
+  const b=$('auto'),r=S.up.auto;
+  if(r<1){autoOn=false;b.disabled=true;b.setAttribute('aria-pressed','false');b.textContent='Автокрутка: закрыта (магазин)';return}
+  b.disabled=false;b.setAttribute('aria-pressed',String(autoOn));b.textContent='Автокрутка: '+(autoOn?'вкл':'выкл');
+}
+function autoNext(){clearTimeout(autoT);if(autoOn)autoT=setTimeout(autoTick,autoDelay(S.up.auto))}
+function autoTick(){
+  if(!autoOn||busy)return;
+  if(document.hidden){autoT=setTimeout(autoTick,1000);return}
+  if(S.bal<batchN*SPIN_COST){autoOn=false;renderAuto();msg('Автокрутка остановилась: не хватает монет');return}
+  spin();
+}
+const qReward=()=>Math.round(1500*(1+rankSumOf(S)+S.prof*2)/50)*50;
+const dailyReward=st=>Math.round(1000*Math.min(st,7)*(1+rankSumOf(S)/3)/50)*50;
+function dailyInfo(){const dn=dayNum(),can=S.daily.d!==dn,st=can?(S.daily.d===dn-1?S.daily.streak+1:1):S.daily.streak;return{can,st,rw:dailyReward(st)}}
+function qList(){
+  const dn=dayNum(),o=[20,40,60][dn%3],sl=[15,30,45][(dn+1)%3],l=[2,3,4][(dn+2)%3];
+  return[{id:'qo',t:'Открыть '+o+' карт',v:S.q.opened,g:o},{id:'qs',t:'Продать '+sl+' карт',v:S.q.sold,g:sl},{id:'ql',t:'Выбить карту «'+LV[l].name+'» или выше',v:S.q.bestlv,g:l+1}];
+}
+let goalTab=0;
+function goalsDot(){
+  ensureDay();
+  return dailyInfo().can||qList().some(q=>q.v>=q.g&&!S.q.done.includes(q.id))||ACH.some(a=>achRel(a)&&!S.ach[a[0]]&&a[3](S)>=ag(a));
+}
+const barHTML=(v,g)=>'<div class="bar"><i style="width:'+Math.min(100,Math.round(v/g*100))+'%"></i></div>';
+function renderGoals(){
+  $('fabGoalsDot').hidden=!goalsDot();
+  if($('ovGoals').hidden)return;
+  ensureDay();
+  document.querySelectorAll('[data-gt]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.gt===goalTab)));
+  let h='';
+  if(goalTab===0){
+    const d=dailyInfo(),lk=isLucky();
+    h+='<div class="glist"><div class="gi"><p class="gt">Ежедневный бонус</p><p class="muted">Заходите каждый день: серия растёт до 7 дней, награда вместе с ней. Серия: <b>'+S.daily.streak+'</b>.</p>'
+      +'<button class="buy" type="button" data-daily="1"'+(d.can?'':' disabled')+'>'+(d.can?'Забрать · '+fmtB(d.rw)+' (день '+d.st+')':'Сегодня уже забрали')+'</button></div>'
+      +'<div class="gi"><p class="gt">События</p><p>Банк дня: <b>'+dayBank().f+'</b>. Карты этого банка сегодня продаются в 2 раза дороже. Страна дня: <b>'+dayCountry().f+'</b>, её паспорта тоже вдвое дороже. Оператор дня: <b>'+dayCarrier().f+'</b> и регион дня: <b>'+dayRegion().f+'</b>, их SIM-карты и автономера тоже вдвое дороже.</p><p>Час удачи: '+(lk?'<b>идёт прямо сейчас</b>, удача +3 ранга.':nextLucky()+', удача +3 ранга на час.')+'</p></div>';
+    h+=qList().map(q=>{const done=S.q.done.includes(q.id),ok=q.v>=q.g;
+      return '<div class="gi'+(done?' done':'')+'"><p class="gt">'+q.t+'</p>'+barHTML(q.v,q.g)+'<p class="muted">'+Math.min(q.v,q.g)+' из '+q.g+'</p>'
+        +'<button class="buy" type="button" data-q="'+q.id+'"'+(ok&&!done?'':' disabled')+'>'+(done?'Награда получена':ok?'Забрать · '+fmtB(qReward()):'Награда '+fmtB(qReward()))+'</button></div>'}).join('')+'</div>';
+  }else if(goalTab===1){
+    h+='<div class="glist">'+ACH.filter(achRel).map(a=>{
+      const v=a[3](S),ok=v>=ag(a),done=!!S.ach[a[0]];
+      return '<div class="gi'+(done?' done':'')+'"><p class="gt">'+a[1]+'</p><p class="muted">'+a[2]+'</p>'+barHTML(v,ag(a))+'<p class="muted">'+fmtB(Math.min(Math.floor(v),ag(a)))+' из '+fmtB(ag(a))+'</p>'
+        +'<button class="buy" type="button" data-ach="'+a[0]+'"'+(ok&&!done?'':' disabled')+'>'+(done?'Получено':(ok?'Забрать: ':'Награда: ')+fmtB(a[5])+(a[6]?' и удача +'+String(a[6]).replace('.',','):''))+'</button></div>'}).join('')+'</div>';
+  }else{
+    const slots=albumCount(S),full=albumFull(S);
+    h+='<p class="muted" style="margin:0 0 12px">Слотов заполнено: <b>'+slots+'</b> из '+6*entOf(S.game).length+'. Целиком собрано: <b>'+full+'</b> из '+entOf(S.game).length+'. Бонус к цене продажи: <b>+'+(albumBonus(S)*100).toFixed(1).replace('.',',')+'%</b>. Каждый слот даёт +0,2%, собранный банк или страна ещё +1%. Ставьте карты кнопкой «В альбом» в своей коллекции.</p><div class="glist">'
+      +entOf(S.game).sort((a,b)=>b.b-a.b).map(b=>{
+        const row=S.album[b.id]||{},cnt=Object.keys(row).length;
+        return '<div class="arow'+(cnt===6?' full':'')+'"><span>'+b.n+(b.ty!=='card'?' ('+TAGW[b.ty]+')':'')+'</span><span class="alb" aria-hidden="true">'+FAMS.map((f,i)=>'<i title="'+f+'"'+(row[i]?' style="background:var(--t'+i+')"':'')+'></i>').join('')+'</span><span class="muted">'+cnt+'/6</span></div>'}).join('')+'</div>';
+  }
+  $('goalsBody').innerHTML=h;
 }
 const luckEpic=r=>lwFor(r).slice(4).reduce((a,b)=>a+b,0);
 const taxRange=r=>Math.max(0,TAX[0][1]*100-taxCut(r))+'–'+Math.max(0,TAX[TAX.length-1][1]*100-taxCut(r))+'%';
@@ -570,7 +987,8 @@ const TRACKS=[
  {id:'speed',n:'Скорость открытия',eff:r=>r?'Крутка быстрее в '+(1/speedK(r)).toFixed(1).replace('.',',')+' раза, быстрая крутка ×'+(1/(.28*speedK(r))).toFixed(1).replace('.',','):'Обычная скорость, быстрая крутка закрыта'},
  {id:'inc',n:'Цена продажи',eff:r=>'Карты продаются на '+Math.round(8*r)+'% дороже'},
  {id:'tax',n:'Налоговый статус',eff:r=>'Налог с продажи: '+taxRange(r)},
- {id:'cap',n:'Размер коллекции',eff:r=>'В коллекции '+capFor(r)+' карт'}
+ {id:'cap',n:'Размер коллекции',eff:r=>'В коллекции '+capFor(r)+' карт'},
+ {id:'auto',n:'Автокрутка',eff:r=>r?'Крутит сама через '+(autoDelay(r)/1000).toFixed(1).replace('.',',')+' с после остановки':'Автокрутка закрыта'}
 ];
 function renderShop(){
   $('shop').innerHTML=TRACKS.map(t=>{
@@ -610,7 +1028,7 @@ function renderFast(){
   b.disabled=false;
   b.textContent='Быстрая крутка ×'+(1/(.28*speedK(r))).toFixed(1).replace('.',',')+': '+(b.getAttribute('aria-pressed')==='true'?'вкл':'выкл');
 }
-function renderAll(){CURLW=lwFor(S.up.luck);renderFast();renderStats();renderTiers();renderChances();renderBest();renderInv();renderBatch();renderShop();renderProfile();renderPrestige();updateSpin();refreshSellNow()}
+function renderAll(){CURLW=lwFor(luckEff());renderFast();renderAuto();renderEvents();renderGame();renderStats();renderTiers();renderChances();renderBest();renderInv();renderBatch();renderShop();renderProfile();renderGoals();renderPrestige();updateSpin();refreshSellNow()}
 function msg(t){$('invMsg').textContent=t}
 function setInfo(h){$('info').innerHTML=h}
 
@@ -623,24 +1041,45 @@ const sizeName=x=>x.p?'платёжная система':x.b>=200?'гигант
 $('banks').innerHTML=[...BANKS].sort((a,b)=>b.b-a.b).map(x=>
   '<li><span class="bnm">'+x.f+'</span><span class="brk">'+sizeName(x)+'</span><span class="bbn">+'+x.b+'%</span></li>'
 ).join('');
+$('countries').innerHTML=[...COUNTRIES].sort((a,b)=>b.b-a.b).map(x=>
+  '<li><span class="bnm">'+x.f+'</span><span class="brk">паспорт · '+x.len+' цифр</span><span class="bbn">+'+x.b+'%</span></li>'
+).join('');
+$('carriers').innerHTML=[...CARRIERS].sort((a,b)=>b.b-a.b).map(x=>
+  '<li><span class="bnm">'+x.f+'</span><span class="brk">SIM · 10 цифр</span><span class="bbn">+'+x.b+'%</span></li>'
+).join('');
+$('regions').innerHTML=[...REGIONS].sort((a,b)=>b.b-a.b).map(x=>
+  '<li><span class="bnm">'+x.f+'</span><span class="brk">автономер · код '+x.code+'</span><span class="bbn">+'+x.b+'%</span></li>'
+).join('');
 renderAll();
-setInfo(IDLE);
+setInfo(idleInfo());
 
 /* ---------- selling ---------- */
 function sellAt(i){
-  const s=S.inv[i];if(!s)return;
-  const c=de(s),v=sale(c);S.inv.splice(i,1);S.bal+=v.n;S.taxPaid+=v.t;S.earned+=v.n;
+  const s=S.inv[i];if(!s||S.locks.includes(s))return;
+  const c=de(s),v=sale(c);S.inv.splice(i,1);S.bal+=v.n;S.taxPaid+=v.t;S.earned+=v.n;countSold(1);
   save();renderAll();msg('Продано: '+c.b.n+', на руки '+fmtB(v.n)+(v.t?' (налог '+fmtB(v.t)+')':''));
 }
-$('inv').addEventListener('click',e=>{const b=e.target.closest('[data-sell]');if(b)sellAt(+b.dataset.sell)});
+function toggleLock(i){const s=S.inv[i];if(!s)return;const k=S.locks.indexOf(s);if(k>=0)S.locks.splice(k,1);else S.locks.push(s);save();renderAll()}
+function toAlbum(i){
+  const s=S.inv[i];if(!s)return;const c=de(s);if(albumHas(c))return;
+  (S.album[c.b.id]=S.album[c.b.id]||{})[c.tier]=s;S.inv.splice(i,1);
+  const k=S.locks.indexOf(s);if(k>=0)S.locks.splice(k,1);
+  save();renderAll();msg('Карта в альбоме: '+c.b.n+', '+FAMS[c.tier]);
+}
+$('inv').addEventListener('click',e=>{
+  const b=e.target.closest('[data-sell],[data-lock],[data-alb]');if(!b)return;
+  if(b.dataset.sell!==undefined)sellAt(+b.dataset.sell);
+  else if(b.dataset.lock!==undefined)toggleLock(+b.dataset.lock);
+  else toAlbum(+b.dataset.alb);
+});
 $('info').addEventListener('click',e=>{
   if(!e.target.closest('#sellNow')||!shown)return;
   const i=S.inv.indexOf(shown);if(i>=0)sellAt(i);
 });
 $('sellLow').addEventListener('click',()=>{
   let sum=0,tax=0,n=0;
-  S.inv=S.inv.filter(s=>{const c=de(s);if(c.lv<=3){const v=sale(c);sum+=v.n;tax+=v.t;n++;return false}return true});
-  if(n){S.bal+=sum;S.taxPaid+=tax;S.earned+=sum;save();renderAll();msg('Продано карт: '+n+', на руки '+fmtB(sum)+' (налог '+fmtB(tax)+')')}
+  S.inv=S.inv.filter(s=>{const c=de(s);if(c.lv<=3&&!S.locks.includes(s)){const v=sale(c);sum+=v.n;tax+=v.t;n++;return false}return true});
+  if(n){S.bal+=sum;S.taxPaid+=tax;S.earned+=sum;countSold(n);save();renderAll();msg('Продано карт: '+n+', на руки '+fmtB(sum)+' (налог '+fmtB(tax)+')')}
 });
 $('bonus').addEventListener('click',()=>{S.bal+=BONUS;save();renderAll();msg('')});
 $('batch').addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b||busy||b.disabled)return;wantN=+b.dataset.n;renderBatch();updateSpin()});
@@ -681,9 +1120,11 @@ function fan(lv){
 function syncSound(){
   $('snd').setAttribute('aria-pressed',String(soundOn));$('snd').textContent='Звук: '+(soundOn?'вкл':'выкл');
   $('tickT').setAttribute('aria-pressed',String(SET.tick));$('tickT').textContent='Щелчки при вращении: '+(SET.tick?'вкл':'выкл');
+  $('fxT').setAttribute('aria-pressed',String(SET.fx));$('fxT').textContent='Эпичные эффекты: '+(SET.fx?'вкл':'выкл');
   $('vol').value=SET.vol;$('volO').textContent=SET.vol+'%';
 }
 $('snd').addEventListener('click',()=>{soundOn=!soundOn;SET.snd=soundOn;saveSet();syncSound();ensureAudio();if(soundOn)beep(660,0,.15,'sine',.08)});
+$('fxT').addEventListener('click',()=>{SET.fx=!SET.fx;saveSet();syncSound()});
 $('tickT').addEventListener('click',()=>{SET.tick=!SET.tick;saveSet();syncSound()});
 $('vol').addEventListener('input',()=>{SET.vol=+$('vol').value;saveSet();syncSound()});
 $('vol').addEventListener('change',()=>{ensureAudio();if(soundOn)beep(660,0,.15,'sine',.08)});
@@ -694,51 +1135,109 @@ $('fast').addEventListener('click',()=>{
   renderFast();
 });
 
+/* ---------- эпичные выпадения: вспышка, лучи, надпись, тряска, вибрация ---------- */
+let fxT=0;
+function ringAt(){const r=$('live').getBoundingClientRect();return[r.left+r.width/2,r.top+r.height/2]}
+function epic(card){
+  if(!SET.fx||card.tier<3)return;
+  const t=card.tier,ideal=card.k===card.n,fx=$('fx'),bn=$('banner'),big=t>=5||ideal;
+  const txt=ideal?'ИДЕАЛ!':['ЭПИЧЕСКАЯ!','МИФИЧЕСКАЯ!','ЛЕГЕНДАРНАЯ!'][t-3];
+  const [cx,cy]=ringAt();
+  let h='<div class="dim"></div><div class="flash" style="--c:var(--t'+t+')"></div>';
+  if(big&&!reduce)h+='<div class="flash w"></div><div class="flash w" style="animation-delay:.2s"></div><div class="flash w" style="animation-delay:.4s"></div>';
+  if(!reduce){
+    const rn=t>=5?4:t===4?3:2;
+    for(let i=0;i<rn;i++)h+='<div class="ring" style="--c:var(--t'+t+');left:'+cx+'px;top:'+cy+'px;animation-delay:'+(i*.18)+'s"></div>';
+    if(t>=4)h+='<div class="rays" style="--c:var(--t'+t+')"></div>';
+    if(big)h+='<div class="rays r2" style="--c:#fff"></div>';
+  }
+  fx.innerHTML=h;
+  bn.hidden=false;bn.className=ideal?'rb':'';
+  bn.innerHTML='<b style="--c:var(--t'+t+')">'+[...txt].map((ch,i)=>'<span style="--i:'+i+'">'+ch+'</span>').join('')+'</b><small>'+card.name+' · '+fmtP(card.price)+' монет</small>';
+  clearTimeout(fxT);fxT=setTimeout(()=>{fx.innerHTML='';bn.hidden=true;bn.innerHTML=''},t>=4?3200:2500);
+  const lv=$('live');lv.classList.add('pop','aura','tx'+t);
+  setTimeout(()=>lv.classList.remove('pop'),900);setTimeout(()=>lv.classList.remove('aura'),6000);
+  const st=document.querySelector('.stage');
+  if(!reduce){
+    if(t>=4){const m=document.querySelector('.app');m.classList.remove('shake');void m.offsetWidth;m.classList.add('shake');if(big)m.classList.add('shake2');setTimeout(()=>m.classList.remove('shake','shake2'),big?1100:600)}
+    st.classList.remove('zoom');void st.offsetWidth;st.classList.add('zoom');setTimeout(()=>st.classList.remove('zoom'),2400);
+  }
+  try{navigator.vibrate&&navigator.vibrate(big?[100,40,100,40,100,40,400]:t===4?[80,30,80,30,220]:[60,30,100])}catch(e){}
+  try{const h=window.Telegram&&Telegram.WebApp&&Telegram.WebApp.HapticFeedback;if(h){h.notificationOccurred('success');if(t>=4)setTimeout(()=>h.impactOccurred('heavy'),250);if(big)setTimeout(()=>h.impactOccurred('heavy'),550)}}catch(e){}
+  if(soundOn&&ac){
+    beep(70,0,.9,'sawtooth',.09);beep(110,.04,.8,'sawtooth',.06);beep(147,.08,.7,'square',.03);
+    const n=t===3?[0,4,7,12]:t===4?[0,3,7,10,12,15,19]:[0,4,7,12,16,19,24,28,31,36];
+    n.forEach((x,i)=>beep(262*Math.pow(2,x/12),.25+i*.07,.7,t>=4?'triangle':'sine',.06));
+    if(t>=4){beep(523,.3,1.1,'sine',.05);beep(784,.35,1.1,'sine',.04)}
+    if(big)[0,.15,.3].forEach(d=>beep(1568,.9+d,.5,'sine',.035));
+  }
+}
+function tensionFx(t){
+  if(reduce||!SET.fx)return;
+  $('fx').innerHTML='<div class="edge" style="--c:var(--t'+t+')"></div>';
+  if(soundOn&&ac){beep(180,0,.6,'sawtooth',.03);beep(260,.25,.6,'sawtooth',.035);beep(380,.5,.6,'sawtooth',.04)}
+  try{navigator.vibrate&&navigator.vibrate([30,60,30,60,30])}catch(e){}
+}
 /* ---------- confetti: from the epic steps and above, more the higher the step ---------- */
 function confetti(lv,fam){
   if(reduce||lv<4)return;
   const cv=$('confetti'),ctx=cv.getContext('2d');if(!ctx)return;
   const dpr=Math.min(2,window.devicePixelRatio||1);
   cv.width=innerWidth*dpr;cv.height=innerHeight*dpr;
-  const cols={3:['#a374ff','#e8dcff'],4:['#ff5d73','#ffd5db','#ffffff'],5:['#ffc83d','#fff1a6','#ffffff','#e9bb3c']}[fam]||['#ffffff'];
-  const n=Math.round(30+lv*16);
+  const cols={3:['#a374ff','#e8dcff','#ffffff'],4:['#ff5d73','#ffd5db','#ffffff','#ff9aa8'],5:['#ffc83d','#fff1a6','#ffffff','#e9bb3c','#ffe27a']}[fam]||['#ffffff'];
   const r=$('live').getBoundingClientRect();
   const ox=(r.left+r.width/2)*dpr,oy=(r.top+r.height/2)*dpr;
-  const ps=Array.from({length:n},()=>{
-    const a=Math.random()*Math.PI*2,s=(4+Math.random()*9)*dpr;
-    return{x:ox,y:oy,vx:Math.cos(a)*s,vy:Math.sin(a)*s-6*dpr,r:(3+Math.random()*4)*dpr,c:cols[rnd(cols.length)],rot:Math.random()*6,vr:(Math.random()-.5)*.4};
-  });
-  let f=0;
+  let ps=[];
+  const burst=(n,sp)=>{for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,s=(3+Math.random()*sp)*dpr;
+    ps.push({x:ox,y:oy,vx:Math.cos(a)*s,vy:Math.sin(a)*s-5*dpr,r:(3+Math.random()*4)*dpr,c:cols[rnd(cols.length)],rot:Math.random()*6,vr:(Math.random()-.5)*.4,sh:rnd(3)})}};
+  burst(Math.round(50+lv*20),12);
+  if(fam>=4)setTimeout(()=>burst(Math.round(30+lv*10),15),380);
+  if(fam>=4)setTimeout(()=>burst(40,9),800);
+  let rain=fam===5?160:0,f=0;
   (function loop(){
     ctx.clearRect(0,0,cv.width,cv.height);f++;
+    for(let k=0;k<2&&rain>0;k++,rain--)ps.push({x:Math.random()*cv.width,y:-10*dpr,vx:(Math.random()-.5)*2*dpr,vy:(2+Math.random()*3)*dpr,r:(3+Math.random()*3)*dpr,c:cols[rnd(cols.length)],rot:Math.random()*6,vr:(Math.random()-.5)*.3,sh:rnd(3),rn:1});
     for(const p of ps){
-      p.vy+=.28*dpr;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;
-      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);ctx.restore();
+      p.vy+=(p.rn?.04:.28)*dpr;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.rot+=p.vr;
+      ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.rot);ctx.fillStyle=p.c;
+      if(p.sh===0)ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);
+      else if(p.sh===1){ctx.beginPath();ctx.arc(0,0,p.r*.7,0,7);ctx.fill()}
+      else{ctx.beginPath();ctx.moveTo(0,-p.r*1.3);ctx.lineTo(p.r*.5,0);ctx.lineTo(0,p.r*1.3);ctx.lineTo(-p.r*.5,0);ctx.fill()}
+      ctx.restore();
     }
-    if(f<170)requestAnimationFrame(loop);else ctx.clearRect(0,0,cv.width,cv.height);
+    ps=ps.filter(p=>p.y<cv.height+30*dpr);
+    if(f<420&&(ps.length||rain>0||f<60))requestAnimationFrame(loop);else ctx.clearRect(0,0,cv.width,cv.height);
   })();
 }
 
 /* ---------- live card: digits change one after another ---------- */
 const live=$('live'),lbn=$('lbn'),ltl=$('ltl'),lrep=$('lrep'),lpr=$('lpr');
-$('lnum').innerHTML=[0,1,2,3].map(()=>'<span class="g">'+'<span class="cell"></span>'.repeat(4)+'</span>').join('');
-const cellEls=[...live.querySelectorAll('.cell')];
-const IDLE_NUM='1234567890123456';
+let cellEls=[];
+function buildCells(ty,n){
+  $('lnum').innerHTML=layHTML(layoutOf(ty,n),()=>'<span class="cell"></span>');
+  cellEls=[...live.querySelectorAll('.cell')];
+}
+function liveCls(base,ty){return base+(ty&&ty!=='card'?' '+ty:'')}
+function setBn(el,name,ty){el.textContent=name;if(ty&&ty!=='card'){const sm=document.createElement('small');sm.textContent=' '+TAGW[ty];el.appendChild(sm)}}
+const IDLE_NUM='12345678901234567890';
+const IDLE_NUMS={card:'1234567890123456',pass:'123456789',sim:'9001234567',plate:'А123ВС77'},IDLE_LEN={card:16,pass:9,sim:10,plate:8},IDLE_BN={card:'Ваш банк',pass:'Ваша страна',sim:'Ваш оператор',plate:'Ваш регион'};
 function idleCard(){
-  live.className='card tspin live';
-  live.setAttribute('aria-label','Карта ждёт крутки');
-  lbn.textContent='Ваш банк';ltl.textContent='Ожидание';lrep.textContent='—';lpr.textContent='—';
-  cellEls.forEach((c,i)=>{c.textContent=IDLE_NUM[i];c.className='cell stopped'});
+  const ty=S.game;
+  buildCells(ty,IDLE_LEN[ty]);
+  live.className=liveCls('card tspin live',ty);
+  live.setAttribute('aria-label',GAMES[ty].w+' ждёт крутки');
+  lbn.textContent=IDLE_BN[ty];ltl.textContent='Ожидание';lrep.textContent='—';lpr.textContent='—';
+  cellEls.forEach((c,i)=>{c.textContent=IDLE_NUMS[ty][i];c.className='cell stopped'});
 }
 idleCard();
 
 function showResult(c,newBest,batch){
   shown=ser(c);const v=sale(c);shownPrice=v.n;
   let extra='';
-  if(c.k===16)extra='<span class="flag">Идеал: все 16 цифр одинаковые</span>';
+  if(c.k===c.n)extra='<span class="flag">Идеал: все цифры одинаковые</span>';
   else if(c.tier===5)extra='<span class="flag">Легенда</span>';
   else if(newBest)extra='<span class="flag">Новая самая дорогая карта</span>';
-  const bankLine=c.b.p?('Платёжная система: <b>'+c.b.n+'</b>'):('Банк: <b>'+c.b.n+'</b>');
+  const bankLine=c.type==='pass'?('Страна: <b>'+c.b.n+'</b>'):c.type==='sim'?('Оператор: <b>'+c.b.n+'</b>'):c.type==='plate'?('Регион: <b>'+c.b.n+'</b>, код '+c.b.code):c.b.p?('Платёжная система: <b>'+c.b.n+'</b>'):('Банк: <b>'+c.b.n+'</b>');
   let sum='';
   if(batch){
     const chips=batch.counts.map((n,i)=>n?'<span style="--accent:var(--t'+LV[i].fam+')">'+LV[i].name+' ×'+n+'</span>':'').reverse().join('');
@@ -748,8 +1247,8 @@ function showResult(c,newBest,batch){
   }
   setInfo((batch?'<p class="muted">Лучшая карта из '+batch.n+':</p>':'')
     +'<p class="rname" style="color:var(--t'+c.tier+')">'+c.name+'</p>'
-    +meterHTML(c.k,c.tier)
-    +(c.k>=2?'<p>Цифра <b>'+c.d+'</b> идёт подряд <b>'+c.k+'</b> '+plural(c.k)+' из 16.</p>':'<p>Одинаковых цифр подряд нет.</p>')
+    +meterHTML(c.k,c.tier,c.n)
+    +(c.type==='plate'?'<p>Цифры подряд: <b>'+c.rD+'</b>, буквы подряд: <b>'+c.rL+'</b>. Ряд номера: <b>'+c.k+'</b> из 7.</p>':c.p>1?'<p>Узор <b>'+c.pat+'</b> повторяется подряд (<b>'+c.sl+'</b> цифр). Это как ряд из <b>'+c.k+'</b> одинаковых цифр из '+c.n+'.</p>':c.k>=2?'<p>Цифра <b>'+c.d+'</b> идёт подряд <b>'+c.k+'</b> '+plural(c.k)+' из '+c.n+'.</p>':'<p>Одинаковых цифр подряд нет.</p>')
     +'<p class="muted">Ступень <b>'+(c.lv+1)+'</b> из '+NLV+', шанс '+fmtPct(CURLW[c.lv])+'.</p>'
     +'<p>'+bankLine+', надбавка <b>+'+c.b.b+'%</b> к цене.</p>'
     +'<p class="price">'+fmtP(c.price)+' <small>монет</small></p>'
@@ -769,66 +1268,72 @@ function countUp(target){
 }
 
 function land(card,cards,cost){
-  live.className='card t'+card.tier+' live land';
+  live.className=liveCls('card t'+card.tier+' live land',card.type);
   live.setAttribute('aria-label',card.b.n+', '+card.name+', номер '+card.num+', цена '+fmtP(card.price)+' монет');
   ltl.textContent=card.name;
   lrep.innerHTML=repText(card);
-  const show=card.k>=3;
-  cellEls.forEach((c,i)=>{c.className='cell'+((show&&i>=card.s&&i<card.s+card.k)?' h':'')});
+  cellEls.forEach((c,i)=>{c.className='cell'+(hlAt(card,i)?' h':'')});
   countUp(card.price);
 
   const prev=S.best?de(S.best):null;
   const newBest=!!prev&&card.price>prev.price;
   if(!prev||card.price>prev.price)S.best=ser(card);
   S.spins+=cards.length;
+  ensureDay();S.q.opened+=cards.length;
+  cards.forEach(c=>{if(!S.banks.includes(c.b.id))S.banks.push(c.b.id);if(c.lv+2>S.maxk)S.maxk=c.lv+2;if(c.lv+1>S.q.bestlv)S.q.bestlv=c.lv+1});
   const counts=Array(NLV).fill(0);
   cards.forEach(c=>{S.counts[c.lv]++;counts[c.lv]++});
   const rest=cards.filter(c=>c!==card).sort((a,b)=>b.price-a.price);
   S.inv.unshift(ser(card),...rest.map(ser));
   let autoN=0,autoSum=0;
   while(S.inv.length>curCap()){
-    let li=1,lp=Infinity;
-    for(let i=1;i<S.inv.length;i++){const p=de(S.inv[i]).price;if(p<lp){lp=p;li=i}}
+    let li=-1,lp=Infinity;
+    for(let i=1;i<S.inv.length;i++){if(S.locks.includes(S.inv[i]))continue;const p=de(S.inv[i]).price;if(p<lp){lp=p;li=i}}
+    if(li<0)break;
     const v=sale(de(S.inv[li]));
-    S.inv.splice(li,1);S.bal+=v.n;S.taxPaid+=v.t;S.earned+=v.n;autoN++;autoSum+=v.n;
+    S.inv.splice(li,1);S.bal+=v.n;S.taxPaid+=v.t;S.earned+=v.n;countSold(1);autoN++;autoSum+=v.n;
   }
   const total=cards.reduce((a,c)=>a+sale(c).g,0);
   busy=false;
   save();renderAll();
   msg(autoN&&cards.length===1?'Коллекция полна: самая дешёвая карта продана, на руки '+fmtB(autoSum)+' монет.':'');
   showResult(card,newBest,cards.length>1?{n:cards.length,cost,total,counts,autoN,autoSum}:null);
-  fan(card.lv);confetti(card.lv,card.tier);
+  autoNext();fan(card.lv);confetti(card.lv,card.tier);epic(card);
 }
 
 function spin(){
   const N=batchN,cost=N*SPIN_COST;
   if(busy||S.bal<cost)return;
   busy=true;
-  S.bal-=cost;save();renderStats();updateSpin();
+  S.bal-=cost;CURLW=lwFor(luckEff());save();renderStats();updateSpin();
   ensureAudio();
-  const cards=Array.from({length:N},()=>makeCard(pickW(CURLW)));
+  const cards=Array.from({length:N},()=>MAKERS[S.game](pickW(CURLW)));
   const card=cards.reduce((a,b)=>(b.price>a.price||(b.price===a.price&&b.lv>a.lv))?b:a);
   const fast=S.up.speed>=1&&$('fast').getAttribute('aria-pressed')==='true';
   const k=reduce?.1:(fast?.28:(N>1?.5:1))*speedK(S.up.speed);
-  live.className='card tspin live';
-  live.setAttribute('aria-label','Карта крутится');
+  const ty=card.type,pool=GAMES[ty].pool();
+  live.className=liveCls('card tspin live',ty);
+  live.setAttribute('aria-label',GAMES[ty].w+' крутится');
   ltl.textContent='···';lrep.textContent='—';lpr.textContent='???';
-  setInfo('<p class="rname muted">Крутим…</p><p class="muted">'+(N>1?'Открываем карты: '+N+' шт. На экране появится лучшая из них, остальные лягут в коллекцию.':'Цифры останавливаются слева направо. Потом станут известны ступень редкости, банк и цена.')+'</p>');
+  setInfo('<p class="rname muted">Крутим…</p><p class="muted">'+(N>1?'Открываем карты: '+N+' шт. На экране появится лучшая из них, остальные лягут в коллекцию.':'Цифры останавливаются слева направо. Потом станут известны ступень редкости, '+GAMES[ty].pk+' и цена.')+'</p>');
+  const n=card.num.length,sp=270*16/n;
+  buildCells(ty,n);
   const L=[],D=[];
-  const R=[],pos=Array(16).fill(0);
+  const R=[],pos=Array(n).fill(0);
   cellEls.forEach((c,i)=>{
-    L[i]=22+i*5+rnd(6);D[i]=(1500+i*270)*k;
-    R[i]=reelDigits(+card.num[i],L[i]);
+    L[i]=22+Math.round(i*5*16/n)+rnd(6);D[i]=(1500+i*sp)*k;
+    R[i]=(ty==='plate'&&PL_L.includes(i))?reelLetters(card.num[i],L[i]):reelDigits(+card.num[i],L[i]);
+    if(card.tier>=3&&i>=n-4&&!reduce)D[i]+=(i-(n-5))*(200+card.tier*90)*k;
     c.textContent=R[i][0];
     c.className='cell rolling';
   });
-  const bankStop=(1500+8*270)*k;
+  const bankStop=(1500+(n/2)*sp)*k;
   const t0=performance.now();
-  const done=Array(16).fill(false);
-  let left=16,bankSet=false,lastBank=0,lastTick=0;
+  const done=Array(n).fill(false);
+  let left=n,bankSet=false,lastBank=0,lastTick=0;
   function frame(now){
     const el=now-t0;
-    for(let i=0;i<16;i++){
+    for(let i=0;i<n;i++){
       if(done[i])continue;
       const t=Math.min(1,el/D[i]),e=1-Math.pow(1-t,3);
       const p=t>=1?L[i]:Math.floor(L[i]*e);
@@ -836,10 +1341,11 @@ function spin(){
       if(t>=1){done[i]=true;left--;cellEls[i].className='cell stopped';clunk(i)}
     }
     if(!bankSet){
-      if(el>=bankStop){lbn.textContent=card.b.n;bankSet=true}
-      else if(now-lastBank>70){lbn.textContent=BANKS[rnd(BANKS.length)].n;lastBank=now}
+      if(el>=bankStop){setBn(lbn,card.b.n,ty);bankSet=true}
+      else if(now-lastBank>70){setBn(lbn,pool[rnd(pool.length)].n,ty);lastBank=now}
     }
     if(left>0&&now-lastTick>55){tick();lastTick=now}
+    if(left<=4&&left>0&&card.tier>=3&&!reduce&&SET.fx&&!live.classList.contains('tense')){live.classList.add('tense','tx'+card.tier);tensionFx(card.tier)}
     if(left>0||!bankSet)requestAnimationFrame(frame);else land(card,cards,cost);
   }
   requestAnimationFrame(frame);
@@ -847,7 +1353,7 @@ function spin(){
 $('spin').addEventListener('click',spin);
 
 /* ---------- reset, new bank, save code ---------- */
-function toIdle(){shown=null;shownPrice=0;wantN=1;idleCard();setInfo(IDLE)}
+function toIdle(){shown=null;shownPrice=0;wantN=1;idleCard();setInfo(idleInfo())}
 let armed=0;
 $('reset').addEventListener('click',()=>{
   const b=$('reset');
@@ -869,7 +1375,7 @@ $('prest').addEventListener('click',()=>{
     return;
   }
   clearTimeout(parm);parm=0;
-  S.shares+=g;S.runs++;S.bal=START_BAL;S.inv=[];S.earned=0;TRK.forEach(id=>{S.up[id]=0});
+  S.shares+=g;S.runs++;S.bal=START_BAL;S.inv=[];S.locks=[];S.earned=0;TRK.forEach(id=>{S.up[id]=0});
   save();renderAll();msg('');toIdle();
   setInfo('<p class="rname">Новый банк открыт</p><p>Получено акций: <b>'+g+'</b>. Теперь карты продаются на <b>'+Math.round((incMul()-1)*100)+'%</b> дороже. Ранги и монеты начаты заново.</p>');
 });
@@ -882,6 +1388,33 @@ function closeOv(){
 }
 $('fabShop').addEventListener('click',()=>openOv('ovShop'));
 $('fabHome').addEventListener('click',()=>openOv('ovHome'));
+let curSec='lad';
+function showSec(k){curSec=k;document.querySelectorAll('[data-sec]').forEach(x=>{x.hidden=x.dataset.sec!==k});document.querySelectorAll('[data-s]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.s===k)))}
+$('secbar').addEventListener('click',e=>{const b=e.target.closest('[data-s]');if(b)showSec(b.dataset.s)});
+showSec('lad');
+$('gamebar').addEventListener('click',e=>{
+  const b=e.target.closest('[data-game]');if(!b||busy||b.dataset.game===S.game)return;
+  autoOn=false;switchGame(b.dataset.game);CURLW=lwFor(luckEff());ensureDay();save();renderAll();toIdle();if(curSec!=='lad')showSec(S.game);
+});
+$('fabGoals').addEventListener('click',()=>{openOv('ovGoals');renderGoals()});
+$('auto').addEventListener('click',()=>{
+  if(S.up.auto<1)return;
+  autoOn=!autoOn;renderAuto();
+  if(autoOn){if(!busy)autoTick()}else clearTimeout(autoT);
+});
+$('ovGoals').addEventListener('click',e=>{
+  const t=e.target.closest('[data-gt]');
+  if(t){goalTab=+t.dataset.gt;renderGoals();return}
+  ensureDay();
+  const d=e.target.closest('[data-daily]'),q=e.target.closest('[data-q]'),a=e.target.closest('[data-ach]');
+  if(d){const i=dailyInfo();if(!i.can)return;S.daily={d:dayNum(),streak:i.st};S.bal+=i.rw}
+  else if(q){const x=qList().find(z=>z.id===q.dataset.q);if(!x||x.v<x.g||S.q.done.includes(x.id))return;S.q.done.push(x.id);S.bal+=qReward()}
+  else if(a){const x=ACH.find(z=>z[0]===a.dataset.ach);if(!x||S.ach[x[0]]||x[3](S)<ag(x))return;S.ach[x[0]]=1;S.bal+=x[5]}
+  else return;
+  save();renderAll();
+});
+setInterval(()=>{CURLW=lwFor(luckEff());renderEvents();renderChances();ensureDay();renderGoals()},20000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){CURLW=lwFor(luckEff());renderEvents();renderChances();renderGoals()}});
 document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o||e.target.closest('.x'))closeOv()}));
 addEventListener('keydown',e=>{if(e.key==='Escape')closeOv()});
 $('profBox').addEventListener('click',e=>{
